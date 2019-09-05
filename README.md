@@ -3,7 +3,7 @@
 ## To Do
 
 - Handle South Melbourne and Fitzroy checkboxes
-- Cache season data in client to avoid extra ajax calls
+- ~Cache season data in client to avoid extra ajax calls~
 - Handle finals weeks
 - Build ladder
 - Improve overall design

@@ -41,44 +41,56 @@
 	<script>
 		imfl = { 
 			roundsVue: null,
-			data: {}
+			years: {}
 		};
 
 
 var loadSeason = function(results) {
 	console.log("loadSeason", results);
-
-	var rounds = {};
-	results.data.forEach(function(d) {
-		if (!rounds[d.round])
-			rounds[d.round] = { name: d.round, matches: [] };
-		var match = {
-			homeTeam: d.homeTeam,
-			homeGoals: d.homeGoals,
-			homeBehinds: d.homeBehinds,
-			homePoints: (d.homeGoals * 6) + d.homeBehinds,
-			homeWin: "normal",
-			awayTeam: d.awayTeam,
-			awayGoals: d.awayGoals,
-			awayBehinds: d.awayBehinds,
-			awayPoints: (d.awayGoals * 6) + d.awayBehinds,
-			awayWin: "normal"
+	if (!imfl.years[imfl.currentYear]) {
+		imfl.years[imfl.currentYear] = {
+			rounds: {},
+			finals: {},
+			ladder: {}
 		};
-		if (match.homePoints > match.awayPoints)
-			match.homeWin = "bold";
-		else if (match.homePoints < match.awayPoints)
-			match.awayWin = "bold";
-		rounds[d.round].matches.push(match);
 
-	});
-	console.log(rounds);
+		results.data.forEach(function(d) {
+			
+			if (!imfl.years[imfl.currentYear].rounds[d.round]) {
+				imfl.years[imfl.currentYear].rounds[d.round] = { 
+					name: d.round, 
+					matches: [] 
+				};
+			}
+			
+			var match = {
+				homeTeam: d.homeTeam,
+				homeGoals: d.homeGoals,
+				homeBehinds: d.homeBehinds,
+				homePoints: (d.homeGoals * 6) + d.homeBehinds,
+				homeWin: "normal",
+				awayTeam: d.awayTeam,
+				awayGoals: d.awayGoals,
+				awayBehinds: d.awayBehinds,
+				awayPoints: (d.awayGoals * 6) + d.awayBehinds,
+				awayWin: "normal"
+			};
+			if (match.homePoints > match.awayPoints)
+				match.homeWin = "bold";
+			else if (match.homePoints < match.awayPoints)
+				match.awayWin = "bold";
+			imfl.years[imfl.currentYear].rounds[d.round].matches.push(match);
+
+		});
+	}
+	console.log(imfl.years[imfl.currentYear].rounds);
 
 	if (imfl.roundsVue) {
-		imfl.roundsVue.rounds = rounds;
+		imfl.roundsVue.rounds = imfl.years[imfl.currentYear].rounds;
 	}	else {
 		imfl.roundsVue = new Vue({
 			el: "#rounds",
-			data: {rounds: rounds}
+			data: {rounds: imfl.years[imfl.currentYear].rounds}
 		});
 	}
 };
@@ -86,6 +98,10 @@ var loadSeason = function(results) {
 var fetchData = function() {
 	console.log("now in: fetchData");
 	console.log("selected year:", imfl.currentYear);
+
+	if (imfl.years[imfl.currentYear]) {
+		loadSeason();
+	}
 
 	var urlBase = "https://imfl.neocities.org/yeardata/";
 	
