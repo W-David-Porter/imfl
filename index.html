@@ -71,7 +71,7 @@ var loadSeason = function(results) {
 	console.log(rounds);
 
 	if (roundsComponent) {
-		roundsComponent.data.rounds = rounds;
+		roundsComponent.rounds = rounds;
 	}	else {
 		roundsComponent = new Vue({
 			el: "#rounds",
