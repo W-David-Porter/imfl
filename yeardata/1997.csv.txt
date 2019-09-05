@@ -1,0 +1,101 @@
+1996,Round 1,Melbourne,8,8,Geelong,27,21
+1996,Round 1,Richmond,15,14,Essendon,19,8
+1996,Round 1,Fitzroy,11,5,Hawthorn,13,14
+1996,Round 1,St Kilda,12,13,North Melbourne,15,19
+1996,Round 1,Carlton,16,13,Collingwood,12,15
+1996,Round 2,North Melbourne,26,12,Footscray,5,7
+1996,Round 2,Geelong,26,8,St Kilda,20,14
+1996,Round 2,Hawthorn,6,15,Richmond,14,14
+1996,Round 2,Essendon,10,12,Carlton,15,11
+1996,Round 2,Collingwood,27,11,Melbourne,11,13
+1996,Round 3,Footscray,17,19,Fitzroy,10,10
+1996,Round 3,Hawthorn,12,8,North Melbourne,22,21
+1996,Round 3,South Melbourne,15,17,Collingwood,10,13
+1996,Round 3,Melbourne,14,14,St Kilda,13,10
+1996,Round 4,Carlton,21,7,Melbourne,12,14
+1996,Round 4,St Kilda,24,16,Fitzroy,11,9
+1996,Round 4,Footscray,8,9,Hawthorn,8,9
+1996,Round 4,Richmond,9,16,South Melbourne,10,11
+1996,Round 5,Essendon,16,9,Collingwood,17,15
+1996,Round 5,Geelong,13,13,Richmond,12,16
+1996,Round 5,South Melbourne,13,10,Hawthorn,11,10
+1996,Round 5,St Kilda,16,20,Footscray,13,12
+1996,Round 6,South Melbourne,14,6,Essendon,12,18
+1996,Round 6,Geelong,13,15,North Melbourne,15,14
+1996,Round 6,Fitzroy,9,8,Richmond,23,16
+1996,Round 6,Hawthorn,9,11,St Kilda,13,8
+1996,Round 6,Footscray,9,10,Carlton,12,8
+1996,Round 7,Essendon,22,11,Geelong,17,12
+1996,Round 7,Collingwood,14,11,St Kilda,18,10
+1996,Round 7,Carlton,18,17,Fitzroy,8,14
+1996,Round 7,Melbourne,5,8,South Melbourne,12,10
+1996,Round 7,Richmond,17,11,Footscray,9,8
+1996,Round 8,Carlton,12,14,Geelong,15,8
+1996,Round 8,Hawthorn,19,8,Melbourne,10,11
+1996,Round 8,North Melbourne,20,24,Richmond,14,5
+1996,Round 8,Footscray,13,6,Essendon,23,13
+1996,Round 9,North Melbourne,25,20,Fitzroy,9,11
+1996,Round 9,Essendon,11,23,Melbourne,12,5
+1996,Round 9,St Kilda,9,15,Carlton,13,13
+1996,Round 9,Collingwood,11,10,Geelong,21,13
+1996,Round 10,Footscray,10,9,North Melbourne,12,17
+1996,Round 10,Carlton,15,11,Richmond,13,12
+1996,Round 10,Fitzroy,10,7,South Melbourne,21,11
+1996,Round 10,St Kilda,9,13,Essendon,13,11
+1996,Round 10,Melbourne,17,12,Collingwood,10,16
+1996,Round 11,Geelong,20,9,Footscray,12,13
+1996,Round 11,North Melbourne,10,13,South Melbourne,24,8
+1996,Round 11,Richmond,21,13,St Kilda,15,15
+1996,Round 11,Fitzroy,8,8,Melbourne,18,11
+1996,Round 12,Collingwood,14,11,Carlton,17,14
+1996,Round 12,Hawthorn,17,12,Fitzroy,12,11
+1996,Round 12,South Melbourne,18,15,Footscray,11,11
+1996,Round 12,North Melbourne,16,11,Essendon,14,11
+1996,Round 13,Collingwood,10,9,Richmond,14,8
+1996,Round 13,Carlton,13,13,South Melbourne,15,12
+1996,Round 13,Essendon,18,13,Hawthorn,15,10
+1996,Round 13,Fitzroy,6,3,Geelong,25,16
+1996,Round 14,North Melbourne,21,18,Carlton,13,11
+1996,Round 14,Hawthorn,17,12,Collingwood,11,15
+1996,Round 14,Fitzroy,7,10,Essendon,17,16
+1996,Round 14,South Melbourne,18,17,Geelong,11,8
+1996,Round 14,Melbourne,14,10,Footscray,10,7
+1996,Round 15,Collingwood,22,12,North Melbourne,12,11
+1996,Round 15,Geelong,10,12,Hawthorn,11,8
+1996,Round 15,St Kilda,11,13,South Melbourne,14,12
+1996,Round 15,Melbourne,12,9,Richmond,18,19
+1996,Round 16,North Melbourne,17,16,St Kilda,4,5
+1996,Round 16,Essendon,15,18,Richmond,13,10
+1996,Round 16,Geelong,13,10,Melbourne,4,6
+1996,Round 16,Hawthorn,15,8,Carlton,7,7
+1996,Round 16,Collingwood,17,14,Fitzroy,10,16
+1996,Round 17,Melbourne,11,4,North Melbourne,28,15
+1996,Round 17,Carlton,13,13,Essendon,11,16
+1996,Round 17,St Kilda,14,16,Geelong,11,10
+1996,Round 17,Richmond,17,12,Hawthorn,11,7
+1996,Round 17,Footscray,16,12,Collingwood,17,12
+1996,Round 18,North Melbourne,19,16,Hawthorn,15,9
+1996,Round 18,St Kilda,13,10,Collingwood,11,12
+1996,Round 18,South Melbourne,17,13,Melbourne,6,16
+1996,Round 18,Fitzroy,6,9,Footscray,8,12
+1996,Round 19,Melbourne,20,9,Carlton,17,8
+1996,Round 19,Fitzroy,5,5,St Kilda,13,10
+1996,Round 19,Hawthorn,20,12,Footscray,10,5
+1996,Round 19,South Melbourne,20,10,Richmond,12,10
+1996,Round 20,Richmond,19,18,Geelong,9,13
+1996,Round 20,Hawthorn,7,7,South Melbourne,9,18
+1996,Round 20,Collingwood,9,10,Essendon,11,11
+1996,Round 20,Footscray,14,11,St Kilda,8,9
+1996,Round 21,North Melbourne,14,12,Geelong,16,13
+1996,Round 21,Carlton,13,18,Footscray,9,12
+1996,Round 21,Essendon,14,16,South Melbourne,12,10
+1996,Round 21,St Kilda,9,9,Hawthorn,12,8
+1996,Round 21,Richmond,28,19,Fitzroy,5,6
+1996,Round 22,Essendon,11,13,Footscray,11,10
+1996,Round 22,Geelong,9,11,Carlton,16,11
+1996,Round 22,Melbourne,15,11,Hawthorn,15,12
+1996,Round 22,Richmond,16,13,North Melbourne,21,15
+1996,Finals Week 1,South Melbourne,13,12,Hawthorn,12,12
+1996,Finals Week 1,North Melbourne,19,17,Geelong,9,17
+1996,Finals Week 3,South Melbourne,10,10,Essendon,10,9
+1996,Finals Week 4,North Melbourne,19,17,South Melbourne,13,10
