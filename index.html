@@ -1,29 +1,29 @@
 <!DOCTYPE html>
 <html lang=en-au>
 <head>
-    <meta charset=utf-8 />
-    <meta name=viewport content="width=device-width, initial-scale=1">
-    <title>Inner Melbourne Football League</title>
-    <style>
-      body {
-          margin-left: 50px; 
-          font-variant-numeric: lining-nums;
-          font-family: Corbel, "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "DejaVu Sans", "Bitstream Vera Sans", "Liberation Sans", Verdana, "Verdana Ref", sans-serif;
-      }
-      th {text-align:center; padding-right:6px; padding-left:6px}
-      td { text-align:right; padding-right:6px; padding-left:6px}
-      td.name { text-align:left}
-      tr.borderBottom td {border-bottom: 1px solid black}
-      tr:nth-child(even) {background-color: #eeeeee}
-      label {margin-left: 20px;}  
-      #seasonDetails {margin-bottom: 150px;}
+	<meta charset=utf-8 />
+	<meta name=viewport content="width=device-width, initial-scale=1">
+	<title>Inner Melbourne Football League</title>
+	<style>
+		body {
+			margin-left: 50px; 
+			font-variant-numeric: lining-nums;
+			font-family: Corbel, "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "DejaVu Sans", "Bitstream Vera Sans", "Liberation Sans", Verdana, "Verdana Ref", sans-serif;
+		}
+		label {margin-left: 20px;}  
+		#rounds {margin-bottom: 150px;}
+		th {text-align:center; padding-right:6px; padding-left:6px}
+		td { text-align:right; padding-right:6px; padding-left:6px}
+		td.name { text-align:left}
+		tr.borderBottom td {border-bottom: 1px solid black}
+		tr:nth-child(even) {background-color: #eeeeee}
 
-    </style>
+		</style>
 </head>
 <body>
 	<h1>Inner Melbourne Football League</h1>
 	<label for="yearSelect">Season: </label> 
-	<select id="yearSelect"><option v-for="(year, index) in years" v-bind:selected="index == 0" v-text="year"></option></select> 
+	<select id="yearSelect"><option v-for="(year, index) in years" v-bind:selected="year == currentYear" v-text="year"></option></select> 
 	<label for=south>South Melbourne</label> 
 	<input type=checkbox id=south checked /> 
 	<label for=fitzroy>Fitzroy</label> 
@@ -39,8 +39,11 @@
 	<script src="https://unpkg.com/vue"></script>
 	<script src="https://unpkg.com/papaparse"></script>
 	<script>
+		imfl = { 
+			roundsVue: null,
+			data: {}
+		};
 
-var roundsComponent = null;
 
 var loadSeason = function(results) {
 	console.log("loadSeason", results);
@@ -70,10 +73,10 @@ var loadSeason = function(results) {
 	});
 	console.log(rounds);
 
-	if (roundsComponent) {
-		roundsComponent.rounds = rounds;
+	if (imfl.roundsVue) {
+		imfl.roundsVue.rounds = rounds;
 	}	else {
-		roundsComponent = new Vue({
+		imfl.roundsVue = new Vue({
 			el: "#rounds",
 			data: {rounds: rounds}
 		});
@@ -82,13 +85,11 @@ var loadSeason = function(results) {
 
 var fetchData = function() {
 	console.log("now in: fetchData");
-	var yearSelect = document.getElementById("yearSelect");
-	var selectedYear = yearSelect.options[yearSelect.selectedIndex].value;
-	console.log("selected year:", selectedYear);
+	console.log("selected year:", imfl.currentYear);
 
 	var urlBase = "https://imfl.neocities.org/yeardata/";
 	
-	Papa.parse(urlBase + selectedYear + ".csv", {
+	Papa.parse(urlBase + imfl.currentYear + ".csv", {
 		download: true,
 		header: true,
 		dynamicTyping: true,
@@ -98,8 +99,9 @@ var fetchData = function() {
 		error: function() {
 			console.log("assume the season hasn't started for this year yet. Maybe one day I'll put a fixture");
 			yearSelect.options.remove(0);
-			selectedYear = yearSelect.options[0].value;
-			Papa.parse(urlBase + selectedYear + ".csv", {
+			imfl.currentYear = document.getElementById("yearSelect").value;
+			window.location.hash = imfl.currentYear;
+			Papa.parse(urlBase + imfl.currentYear + ".csv", {
 				download: true,
 				header: true,
 				dynamicTyping: true,
@@ -119,17 +121,33 @@ var fetchData = function() {
 
 // start here
 // first populate the year select box
-var currentYear = new Date().getFullYear();
+imfl.currentYear = new Date().getFullYear();
 var years = [];
-for(var i = currentYear; i >= 1982; --i)
-	years.push(i);
+for(var i = imfl.currentYear; i >= 1982; --i)
+	years.push(String(i));
+var hashYear = window.location.hash;
+if (hashYear) {
+	hashYear = hashYear.substring(1);
+	if (years.indexOf(hashYear) >= 0) {
+		imfl.currentYear = hashYear;
+	} 
+	else {
+		imfl.currentYear = new Date().getFullYear();
+		window.location.hash = imfl.currentYear;
+	}
+} 
 var yearsVue = new Vue({
 	el: "#yearSelect",
-	data: {years: years},
+	data: {
+		years: years,
+		currentYear: imfl.currentYear
+	},
 	mounted: fetchData
 });
 
 document.getElementById("yearSelect").addEventListener("change", function() {
+	imfl.currentYear = this.value;
+	window.location.hash = imfl.currentYear;
 	fetchData();
 });
 

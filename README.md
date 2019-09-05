@@ -7,4 +7,4 @@
 - Handle finals weeks
 - Build ladder
 - Improve overall design
-- Show current season in URL hash
+- ~Show current season in URL hash~
