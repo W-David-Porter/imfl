@@ -11,7 +11,7 @@
 			font-family: Corbel, "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "DejaVu Sans", "Bitstream Vera Sans", "Liberation Sans", Verdana, "Verdana Ref", sans-serif;
 		}
 		label {margin-left: 20px;}  
-		#rounds {margin-bottom: 150px;}
+		#roundsDiv {margin-bottom: 150px;}
 		th {text-align:center; padding-right:6px; padding-left:6px}
 		td { text-align:right; padding-right:6px; padding-left:6px}
 		td.name { text-align:left}
@@ -22,17 +22,19 @@
 </head>
 <body>
 	<h1>Inner Melbourne Football League</h1>
-	<label for="yearSelect">Season: </label> 
-	<select id="yearSelect"><option v-for="(year, index) in years" v-bind:selected="year == currentYear" v-text="year"></option></select> 
+	<label for=yearSelect>Season: </label> 
+	<select id=yearSelect><option v-for="(year, index) in years" v-bind:selected="year == currentYear" v-text="year"></option></select> 
 	<label for=south>South Melbourne</label> 
 	<input type=checkbox id=south checked /> 
-	<label for=fitzroy>Fitzroy</label> 
-	<input type=checkbox id=fitzroy checked />
+	<label for=fitz>Fitzroy</label> 
+	<input type=checkbox id=fitz checked />
 
-	<div id="rounds">
-		<div class=round v-for="round in rounds">
+	<div id="roundsDiv">
+		<div class=round v-for="round in filteredRounds()">
 			<h2>{{round.name}}</h2>
-			<span v-for="match in round.matches"><span v-bind:style="{fontWeight: match.homeWin}">{{match.homeTeam}} {{match.homeGoals}}.{{match.homeBehinds}}.{{match.homePoints}}</span> vs <span  v-bind:style="{fontWeight: match.awayWin}">{{match.awayTeam}} {{match.awayGoals}}.{{match.awayBehinds}}.{{match.awayPoints}}</span><br></span>
+			<span v-for="match in round.matches">
+				<span v-bind:style="{fontWeight: match.homeWin}">{{match.homeTeam}} {{match.homeGoals}}.{{match.homeBehinds}}.{{match.homePoints}}</span> vs <span  v-bind:style="{fontWeight: match.awayWin}">{{match.awayTeam}} {{match.awayGoals}}.{{match.awayBehinds}}.{{match.awayPoints}}</span><br>
+			</span>
 		</div>
 	</div>
 
@@ -89,8 +91,31 @@ var loadSeason = function(results) {
 		imfl.roundsVue.rounds = imfl.years[imfl.currentYear].rounds;
 	}	else {
 		imfl.roundsVue = new Vue({
-			el: "#rounds",
-			data: {rounds: imfl.years[imfl.currentYear].rounds}
+			el: "#roundsDiv",
+			data: {rounds: imfl.years[imfl.currentYear].rounds},
+			methods: { 
+				filteredRounds: function() {
+					var newRounds = {};
+					var myRounds = this.rounds;
+					Object.keys(this.rounds).forEach(function(key) {
+						newRounds[key] = { 
+							name: myRounds[key].name, 
+							matches: myRounds[key].matches.filter(function(m) {
+							if(!imfl.fitz) {
+								if (m.homeTeam == "Fitzroy" || m.awayTeam == "Fitzroy")
+									return false;
+							}
+							if(!imfl.south) {
+								if (m.homeTeam == "South Melbourne" || m.awayTeam == "South Melbourne")
+									return false;
+							}
+							return true;
+						})
+						} 
+					});
+					return newRounds;
+				}
+			}
 		});
 	}
 };
@@ -134,9 +159,34 @@ var fetchData = function() {
 };
 
 
+var onTraitorChange = function() {
+	console.log("onTraitorChange", this.id, this.checked);
+	imfl[this.id] = this.checked;
+	localStorage.setItem(this.id, this.checked ? "checked" : "");
+	imfl.roundsVue.$forceUpdate();
+	// imfl.finalsVue.$forceUpdate();
+	// imfl.ladderVue.$forceUpdate();
+}
 
 // start here
-// first populate the year select box
+
+// first we use local storage to see if we want fitz and south
+var traitors = ["fitz", "south"];
+traitors.forEach(function(team) {
+	var ls = localStorage.getItem(team);
+	if (ls != null) {
+			document.getElementById(team).checked = imfl[team] = (ls == "checked");
+	} 
+	else {
+		localStorage.setItem(team, "checked"); // set a default value
+		imfl[team] = true;
+	}
+});
+
+document.getElementById("fitz").addEventListener("change", onTraitorChange);
+document.getElementById("south").addEventListener("change", onTraitorChange);
+
+// second populate the year select box
 imfl.currentYear = new Date().getFullYear();
 var years = [];
 for(var i = imfl.currentYear; i >= 1982; --i)
