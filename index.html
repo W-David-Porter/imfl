@@ -6,12 +6,12 @@
 	<title>Inner Melbourne Football League</title>
 	<style>
 		body {
-			margin-left: 50px; 
+			margin-left: 5em; 
 			font-variant-numeric: lining-nums;
 			font-family: Corbel, "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "DejaVu Sans", "Bitstream Vera Sans", "Liberation Sans", Verdana, "Verdana Ref", sans-serif;
 		}
-		label {margin-left: 20px;}  
-		#roundsDiv {margin-bottom: 150px;}
+		label {margin-left: 2em;}  
+		#roundsDiv {margin-bottom: 8em;}
 		th {text-align:center; padding-right:6px; padding-left:6px}
 		td { text-align:right; padding-right:6px; padding-left:6px}
 		td.name { text-align:left}
@@ -38,6 +38,16 @@
 		</div>
 	</div>
 
+	<div id="finalsDiv">
+		<div class=round v-for="final in filteredFinals()">
+			<h2>{{final.name}}</h2>
+			<span v-for="match in final.matches">
+				<span v-bind:style="{fontWeight: match.homeWin}">{{match.homeTeam}} {{match.homeGoals}}.{{match.homeBehinds}}.{{match.homePoints}}</span> vs <span  v-bind:style="{fontWeight: match.awayWin}">{{match.awayTeam}} {{match.awayGoals}}.{{match.awayBehinds}}.{{match.awayPoints}}</span><br>
+			</span>
+		</div>
+	</div>
+
+
 	<script src="https://unpkg.com/vue"></script>
 	<script src="https://unpkg.com/papaparse"></script>
 	<script>
@@ -52,19 +62,12 @@ var loadSeason = function(results) {
 	if (!imfl.years[imfl.currentYear]) {
 		imfl.years[imfl.currentYear] = {
 			rounds: {},
-			finals: {},
-			ladder: {}
+			ladder: {},
+			finals: {}
 		};
 
 		results.data.forEach(function(d) {
-			
-			if (!imfl.years[imfl.currentYear].rounds[d.round]) {
-				imfl.years[imfl.currentYear].rounds[d.round] = { 
-					name: d.round, 
-					matches: [] 
-				};
-			}
-			
+
 			var match = {
 				homeTeam: d.homeTeam,
 				homeGoals: d.homeGoals,
@@ -77,15 +80,35 @@ var loadSeason = function(results) {
 				awayPoints: (d.awayGoals * 6) + d.awayBehinds,
 				awayWin: "normal"
 			};
+
 			if (match.homePoints > match.awayPoints)
 				match.homeWin = "bold";
 			else if (match.homePoints < match.awayPoints)
 				match.awayWin = "bold";
-			imfl.years[imfl.currentYear].rounds[d.round].matches.push(match);
+
+			if (d.round.indexOf("Finals") == 0) {
+				if (!imfl.years[imfl.currentYear].finals[d.round]) {
+					imfl.years[imfl.currentYear].finals[d.round] = { 
+						name: d.round, 
+						matches: [],
+					};
+				}
+				imfl.years[imfl.currentYear].finals[d.round].matches.push(match);
+			}
+			else {
+				if (!imfl.years[imfl.currentYear].rounds[d.round]) {
+					imfl.years[imfl.currentYear].rounds[d.round] = { 
+						name: d.round, 
+						matches: [],
+					};
+				}
+				imfl.years[imfl.currentYear].rounds[d.round].matches.push(match);
+			}
 
 		});
 	}
-	console.log(imfl.years[imfl.currentYear].rounds);
+	console.log(imfl.currentYear, "rounds", imfl.years[imfl.currentYear].rounds);
+	console.log(imfl.currentYear, "finals", imfl.years[imfl.currentYear].finals);
 
 	if (imfl.roundsVue) {
 		imfl.roundsVue.rounds = imfl.years[imfl.currentYear].rounds;
@@ -118,6 +141,39 @@ var loadSeason = function(results) {
 			}
 		});
 	}
+
+	if (imfl.finalsVue) {
+		imfl.finalsVue.rounds = imfl.years[imfl.currentYear].rounds;
+	}	else {
+		imfl.finalsVue = new Vue({
+			el: "#finalsDiv",
+			data: {finals: imfl.years[imfl.currentYear].finals},
+			methods: { 
+				filteredFinals: function() {
+					var newFinals = {};
+					var myFinals = this.finals;
+					Object.keys(this.finals).forEach(function(key) {
+						newFinals[key] = { 
+							name: myFinals[key].name, 
+							matches: myFinals[key].matches.filter(function(m) {
+							if(!imfl.fitz) {
+								if (m.homeTeam == "Fitzroy" || m.awayTeam == "Fitzroy")
+									return false;
+							}
+							if(!imfl.south) {
+								if (m.homeTeam == "South Melbourne" || m.awayTeam == "South Melbourne")
+									return false;
+							}
+							return true;
+						})
+						} 
+					});
+					return newFinals;
+				}
+			}
+		});
+	}
+
 };
 
 var fetchData = function() {
