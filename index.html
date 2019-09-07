@@ -11,12 +11,14 @@
 			font-family: Corbel, "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "DejaVu Sans", "Bitstream Vera Sans", "Liberation Sans", Verdana, "Verdana Ref", sans-serif;
 		}
 		label {margin-left: 2em;}  
-		#roundsDiv {margin-bottom: 8em;}
-		th {text-align:center; padding-right:6px; padding-left:6px}
-		td { text-align:right; padding-right:6px; padding-left:6px}
-		td.name { text-align:left}
-		tr.borderBottom td {border-bottom: 1px solid black}
+		#roundsDiv {margin-bottom: 4em;}
+		#ladderDiv {margin-bottom: 4em;}
+		#finalsDiv {margin-bottom: 4em;}
+		thead tr th {text-align:center; padding-right:.5em; padding-left:.5em}
+		tr th {text-align:left; padding-right:.5em; font-weight: normal}
+		td { text-align:right; padding-right:.5em; padding-left:.5em}
 		tr:nth-child(even) {background-color: #eeeeee}
+		tr:nth-child(5) > th, tr:nth-child(5) > td {border-bottom: 1px black solid}
 
 		</style>
 </head>
@@ -38,9 +40,25 @@
 		</div>
 	</div>
 
+
+	<h2>Ladder</h2>
+	<table id=ladderTable>
+		<thead>
+			<tr>
+				<th></th><th>W</th><th>L</th><th>D</th><th>F</th><th>A</th><th>%</th><th>Pts</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr v-for="(team, index) in filteredLadder()">
+				<th>{{team.name}}</th><td>{{team.wins}}</td><td>{{team.losses}}</td><td>{{team.draws}}</td><td>{{team.for}}</td><td>{{team.against}}</td><td>{{team.percentage.toFixed(2)}}</td><td>{{team.points}}</td>
+			</tr>
+		</tbody>
+	</table>
+
+
 	<div id="finalsDiv">
 		<div class=round v-for="final in filteredFinals()">
-			<h2>{{final.name}}</h2>
+			<h2 v-if="final.matches.length > 0">{{final.name}}</h2>
 			<span v-for="match in final.matches">
 				<span v-bind:style="{fontWeight: match.homeWin}">{{match.homeTeam}} {{match.homeGoals}}.{{match.homeBehinds}}.{{match.homePoints}}</span> vs <span  v-bind:style="{fontWeight: match.awayWin}">{{match.awayTeam}} {{match.awayGoals}}.{{match.awayBehinds}}.{{match.awayPoints}}</span><br>
 			</span>
@@ -57,12 +75,73 @@
 		};
 
 
+var buildLadder = function(rounds) {
+	console.log("buildLadder", rounds);
+
+	var teams = {};
+	var ladder = [];
+
+	Object.keys(rounds).forEach(function(roundName) {
+		var round = rounds[roundName];
+		round.matches.forEach(function(match) {
+			if (!teams[match.homeTeam])
+				teams[match.homeTeam] = { wins: 0, losses: 0, draws: 0, for: 0, against: 0 };
+			if (!teams[match.awayTeam])
+				teams[match.awayTeam] = { wins: 0, losses: 0, draws: 0, for: 0, against: 0 };
+
+			if (match.homePoints > match.awayPoints) {
+				teams[match.homeTeam].wins++;
+			}
+			else if (match.homePoints < match.awayPoints) {
+				teams[match.awayTeam].wins++;
+			}
+			else {
+				teams[match.homeTeam].draws++;
+				teams[match.awayTeam].draws++;
+			}
+
+			teams[match.homeTeam].for += match.homePoints;
+			teams[match.homeTeam].against += match.awayPoints;
+			teams[match.awayTeam].for += match.awayPoints;
+			teams[match.awayTeam].against += match.homePoints;
+
+		});
+	});
+	
+	// convert to array
+	Object.keys(teams).forEach(function(key) {
+		var team = teams[key];
+		
+		// fill in the rest of the details
+		team.name = key;
+		team.points = (team.wins * 4) + (team.draws * 2);
+		team.percentage = team.for / team.against * 100.0;
+		ladder.push(team);
+	});
+
+	ladder.sort(function(a, b) {
+		if (a.points > b.points)
+			return -1;
+		if (a.points < b.points)
+			return 1;
+		// else go by percentage
+		if (a.percentage > b.percentage)
+			return -1;
+		if (a.percentage < b.percentage)
+			return 1;
+		return 0;
+	});
+
+	imfl.years[imfl.currentYear].ladder = ladder;
+}
+
+
 var loadSeason = function(results) {
 	console.log("loadSeason", results);
 	if (!imfl.years[imfl.currentYear]) {
 		imfl.years[imfl.currentYear] = {
 			rounds: {},
-			ladder: {},
+			ladder: [],
 			finals: {}
 		};
 
@@ -103,12 +182,17 @@ var loadSeason = function(results) {
 					};
 				}
 				imfl.years[imfl.currentYear].rounds[d.round].matches.push(match);
+
 			}
 
 		});
+
+		buildLadder(imfl.years[imfl.currentYear].rounds);
 	}
+
 	console.log(imfl.currentYear, "rounds", imfl.years[imfl.currentYear].rounds);
 	console.log(imfl.currentYear, "finals", imfl.years[imfl.currentYear].finals);
+	console.log(imfl.currentYear, "ladder", imfl.years[imfl.currentYear].ladder);
 
 	if (imfl.roundsVue) {
 		imfl.roundsVue.rounds = imfl.years[imfl.currentYear].rounds;
@@ -174,6 +258,21 @@ var loadSeason = function(results) {
 		});
 	}
 
+	if (imfl.ladderVue) {
+	imfl.ladderVue.ladder = imfl.years[imfl.currentYear].ladder;
+}	else {
+	imfl.ladderVue = new Vue({
+		el: "#ladderTable",
+		data: {ladder: imfl.years[imfl.currentYear].ladder},
+		methods: { 
+			filteredLadder: function() {
+				buildLadder(imfl.roundsVue.filteredRounds());
+				return imfl.years[imfl.currentYear].ladder;
+			}
+		}
+	});
+}
+
 };
 
 var fetchData = function() {
@@ -220,8 +319,8 @@ var onTraitorChange = function() {
 	imfl[this.id] = this.checked;
 	localStorage.setItem(this.id, this.checked ? "checked" : "");
 	imfl.roundsVue.$forceUpdate();
-	// imfl.finalsVue.$forceUpdate();
-	// imfl.ladderVue.$forceUpdate();
+	imfl.finalsVue.$forceUpdate();
+	imfl.ladderVue.$forceUpdate();
 }
 
 // start here
