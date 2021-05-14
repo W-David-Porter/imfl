@@ -10,7 +10,7 @@ var results = Papa.parse(contents, {skipEmptyLines: true});
 
 var currentYear = "1982";
 var headerRow = "year,roundType,roundNumber,homeTeam,homeGoals,homeBehinds,awayTeam,awayGoals,awayBehinds";
-const outdir = "yeardata2"
+const outdir = "yeardata"
 if (!fs.existsSync(outdir)){
     fs.mkdirSync(outdir);
 }

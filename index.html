@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang=en>
+
+<head>
+	<meta charset=UTF-8>
+	<meta name=viewport content="width=device-width">
+
+	<title>Inner Melbourne Football League</title>
+
+	<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css>
+	<meta name=description content="Australian Football Results Melbourne Victoria">
+	<link rel=canonical href=https://imfl.neocities.org />
+	<link rel=icon href=/favicon.ico>
+	<link rel=icon href=/favicon.svg type=image/svg+xml>
+
+	<style>
+		span.win {
+			font-weight: bold;
+		}
+
+		span.draw {
+			font-style: italic;
+		}
+
+		nav {
+			font-style: italic
+		}
+	</style>
+
+<body>
+	<header>
+		<h1>Inner Melbourne Football League</h1>
+		<nav>The results that matter</nav>
+	</header>
+
+	<div id=app>
+		<label for=yearList></label><select id=yearSelect v-model="year">
+			<option v-for="y in years" v-bind:value="y" v-text="y">
+		</select>
+
+		<hr>
+		<h2 v-text="`Season ${year}`"></h2>
+
+		<round v-for="round in season" v-bind:round="round" v-bind:key="round.id">
+		</round>
+
+		<h2>Ladder</h2>
+
+		<div v-if="finals.length > 0">
+			<h2 v-text="`Finals ${year}`"></h2>
+			<round v-for="round in finals" v-bind:round="round" v-bind:key="'f'+round.id">
+			</round>
+		</div>
+
+
+	</div>
+
+	<template id=team-template>
+		<span v-text="`${score.name} ${score.goals}.${score.behinds}.${score.points}`" v-bind:class="score.result"></span>
+	</template>
+
+
+	<template id=match-template>
+		<div>
+			<team v-bind:score="match.homeTeam" v-bind:key="match.homeTeam.name"></team>
+			vs.
+			<team v-bind:score="match.awayTeam" v-bind:key="match.awayTeam.name"></team>
+		</div>
+	</template>
+
+
+	<template id=round-template>
+		<div>
+			<h3 v-text="`Round ${round.id}`"></h3>
+			<match v-for="(match,i) in round.matches" v-bind:match="match" v-bind:key="`${round.id}${i}`"></match>
+		</div>
+	</template>
+
+
+
+	<script src=main.js></script>
