@@ -1,0 +1,32 @@
+{
+  "name": "inner-melbourne-football-league",
+  "version": "1.0.0",
+  "description": "The Inner Melbourne Football League has the results that matter.",
+  "private": true,
+  "dependencies": {
+    "papaparse": "^5.3.0",
+    "vue": "^2.6.12"
+  },
+  "devDependencies": {
+    "webpack": "^5.37.0",
+    "webpack-cli": "^4.7.0",
+    "webpack-dev-server": "^3.11.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --progress",
+    "watch": "webpack --progress --watch",
+    "server": "webpack serve --open"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wdporter/inner-melbourne-football-league.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/wdporter/inner-melbourne-football-league/issues"
+  },
+  "homepage": "https://github.com/wdporter/inner-melbourne-football-league#readme"
+}
