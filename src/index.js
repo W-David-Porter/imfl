@@ -2,7 +2,7 @@ import Vue from "vue"
 import Papa from "papaparse";
 
 const thisYear = new Date().getFullYear()
-const baseYear = 1987
+const baseYear = 1982
 
 
 
@@ -42,6 +42,14 @@ const createRound = (currentRound, roundNumber) => {
 
 	// iterate matches
 	currentRound.forEach((row) => {
+
+		if (!window.myApp.fitzroy)
+			if (row.homeTeam == "Fitzroy" || row.awayTeam == "Fitzroy")
+				return
+		if (!window.myApp.south)
+			if (row.homeTeam == "South Melbourne" || row.awayTeam == "South Melbourne")
+				return
+
 		const match = {
 			homeTeam: { name: row.homeTeam, goals: row.homeGoals, behinds: row.homeBehinds, points: getPoints(row.homeGoals, row.homeBehinds) },
 			awayTeam: { name: row.awayTeam, goals: row.awayGoals, behinds: row.awayBehinds, points: getPoints(row.awayGoals, row.awayBehinds) }
@@ -64,6 +72,53 @@ const createRound = (currentRound, roundNumber) => {
 	return newRound
 
 }
+
+const createLadder = (season) => {
+
+	var weeklyLadder = {}
+	season.forEach(round => {
+		round.matches.forEach(match => {
+			if (!weeklyLadder[match.homeTeam.name]) {
+				weeklyLadder[match.homeTeam.name] = {
+					name: match.homeTeam.name, win: 0, loss: 0, draw: 0, for: 0, against: 0,
+					get percent() { return this.for / this.against * 100 },
+					get points() { return (this.win * 4) + (this.draw * 2) }
+				}
+			}
+			if (!weeklyLadder[match.awayTeam.name]) {
+				weeklyLadder[match.awayTeam.name] = {
+					name: match.awayTeam.name, win: 0, loss: 0, draw: 0, for: 0, against: 0,
+					get percent() { return this.for / this.against * 100 },
+					get points() { return (this.win * 4) + (this.draw * 2) }
+				}
+			}
+
+			// fors and againsts
+			weeklyLadder[match.homeTeam.name].for += match.homeTeam.points;
+			weeklyLadder[match.homeTeam.name].against += match.awayTeam.points;
+			weeklyLadder[match.awayTeam.name].for += match.awayTeam.points;
+			weeklyLadder[match.awayTeam.name].against += match.homeTeam.points;
+
+			// win loss draw
+			if (match.homeTeam.result == "win")
+				weeklyLadder[match.homeTeam.name].win++
+			if (match.awayTeam.result == "win")
+				weeklyLadder[match.awayTeam.name].win++
+			if (match.homeTeam.result == "loss")
+				weeklyLadder[match.homeTeam.name].loss++
+			if (match.awayTeam.result == "loss")
+				weeklyLadder[match.awayTeam.name].loss++
+			if (match.homeTeam.result == "draw")
+				weeklyLadder[match.homeTeam.name].draw++
+			if (match.awayTeam.result == "draw")
+				weeklyLadder[match.awayTeam.name].draw++
+
+		})
+	})
+
+	return weeklyLadder
+
+};
 
 const loadSeason = (year) => {
 	Papa.parse(`yeardata/${year}.csv`, {
@@ -105,40 +160,30 @@ const loadSeason = (year) => {
 				finalsSeason.push(createRound(currentRound, roundNumber))
 			}
 
-			// save to our cached seasons
-			seasons[year] = season
-			finalsSeasons[year] = finalsSeason
+			// create a ladder out of our season
+			const objLadder = createLadder(season)
+			const myLadder = Object.values(objLadder)
+			myLadder.sort((a, b) => {
+				if (a.points < b.points)
+					return 1
+				else if (a.points > b.points)
+					return -1
+				else
+					return (b.percent - a.percent)
+			})
+
+
 			// apply to our vue app
 			window.myApp.season = season
-			window.myApp.finals = finalsSeason
+			window.myApp.finalsSeason = finalsSeason
+			window.myApp.ladder = myLadder
 		}
 	});
 }
 
-const loadApp = (newValue, oldValue) => {
-
-	if (oldValue) {
-		// keep a copy in the cache
-		if (!seasons[oldValue]) {
-			seasons[oldValue] = window.myApp.season
-			finalsSeasons[oldValue] = window.myApp.finals
-		}
-	}
-
-	if (seasons[newValue]) {
-		window.myApp.season = seasons[newValue]
-		window.myApp.finals = finalsSeasons[newValue]
-	}
-	else {
-		loadSeason(newValue)
-	}
-};
-
 
 const year = getYear()
 const years = getYearRange(year).reverse()
-const seasons = {}
-const finalsSeasons = {}
 
 
 Vue.component("team", {
@@ -156,6 +201,11 @@ Vue.component('round', {
 	template: "#round-template"
 });
 
+Vue.component('ladder', {
+	props: ["ladder"],
+	template: "#ladder-template"
+});
+
 
 window.myApp = new Vue({
 	el: "#app",
@@ -163,16 +213,32 @@ window.myApp = new Vue({
 		years: years,
 		year: year,
 		season: [],
-		finals: []
+		finalsSeason: [],
+		ladder: [],
+		fitzroy: window.localStorage.getItem("fitzroy") == "true",
+		south: window.localStorage.getItem("south") == "true"
 	},
-	watch: {
-		year: (newValue, oldValue) => {
-			window.location.hash = newValue
-			loadApp(newValue, oldValue)
+	methods: {
+		onTraitorChange: function (evt) {
+			window.localStorage.setItem(evt.currentTarget.id, evt.currentTarget.checked)
+			loadSeason(this.year)
+		},
+		onYearChange: function (evt) {
+			window.location.hash = this.year
+			if (this.year <= 1996) {
+				this.fitzroy = true
+			}
+			else {
+				this.fitzroy = window.localStorage.getItem("fitzroy") == "true"
+			}
+			loadSeason(this.year)
 		}
 	},
-	mounted: () => {
-		loadApp(year)
+	mounted: function () {
+		this.fitzroy = this.year <= 1996 || window.localStorage.getItem("fitzroy") == "true"
+		loadSeason(this.year)
 	}
 })
+
+
 

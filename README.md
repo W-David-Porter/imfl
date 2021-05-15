@@ -8,5 +8,7 @@ The dist folder also requires a copy of index.html and the yeardata folder
 
 ## TODO
 
-* [] South Melbourne and Fitzroy
-* [] Ladder
+* [ ] South Melbourne and Fitzroy
+* [ ] Ladder
+* [ ] in the finals, in the round-template, replace "Round" with "Finals week"
+* [ ] if it's <=1996, fitzroy should always be included, and no option to take them out
