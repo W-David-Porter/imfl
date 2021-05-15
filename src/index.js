@@ -37,6 +37,7 @@ const createRound = (currentRound, roundNumber) => {
 
 	const newRound = {
 		id: roundNumber,
+		type: currentRound[0].roundType,
 		matches: []
 	}
 
@@ -154,11 +155,18 @@ const loadSeason = (year) => {
 				const currentRound = roundsData[roundNumber]
 				season.push(createRound(currentRound, roundNumber))
 			}
-			const finalsSeason = []
+			let finalsSeason = []
 			for (let roundNumber in finalsData) {
 				const currentRound = finalsData[roundNumber]
 				finalsSeason.push(createRound(currentRound, roundNumber))
 			}
+			//sometimes some finals weeks have no games, so we need to adjust the id
+			finalsSeason = finalsSeason.filter( round => {
+				return round.matches.length > 0
+			})
+			finalsSeason.forEach( (round, i) => {
+				round.id = i + 1
+			})
 
 			// create a ladder out of our season
 			const objLadder = createLadder(season)
