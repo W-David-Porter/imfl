@@ -1,3 +1,4 @@
+import './style.css';
 import Vue from "vue"
 import Papa from "papaparse";
 
