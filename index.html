@@ -5,7 +5,7 @@
 	<meta charset=UTF-8>
 	<meta name=viewport content="width=device-width">
 
-	<title>Inner Melbourne Football League</title>
+	<title>Inner Melbourne Football League 🏉</title>
 
 	<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css>
 	<meta name=description content="Australian Football Results Melbourne Victoria">
@@ -14,6 +14,15 @@
 	<link rel=icon href=/favicon.svg type=image/svg+xml>
 
 	<style>
+		footer {
+			background: var(--nc-bg-2);
+			border-bottom: 1px solid var(--nc-bg-3);
+			padding: 2rem 1.5rem;
+			margin: -2rem calc(0px - (50vw - 50%)) 2rem;
+			padding-left: calc(50vw - 50%);
+			padding-right: calc(50vw - 50%);
+		}
+
 		span.win {
 			font-weight: bold;
 		}
@@ -25,18 +34,56 @@
 		nav {
 			font-style: italic
 		}
+
+		tr:nth-child(5) {
+			border-bottom: 5px #ccc double;
+		}
+
+		thead th,
+		td {
+			text-align: right
+		}
+
+		ul {
+			list-style-type: none
+		}
+
+		label {
+			padding-left: .5rem
+		}
+
+		details {
+			display: inline
+		}
+
+		select {
+			height: 3rem;
+			vertical-align: top;
+		}
 	</style>
 
 <body>
 	<header>
-		<h1>Inner Melbourne Football League</h1>
+		<h1>Inner Melbourne Football League 🏉</h1>
 		<nav>The results that matter</nav>
 	</header>
 
 	<div id=app>
-		<label for=yearList></label><select id=yearSelect v-model="year">
+		<label for=yearList></label>
+		<select id=yearSelect v-model="year" v-on:change="onYearChange">
 			<option v-for="y in years" v-bind:value="y" v-text="y">
 		</select>
+		<details>
+			<summary>⚙️</summary>
+			<ul>
+				<li>
+					<input type=checkbox id=south v-model="south" v-on:change="onTraitorChange">
+					<label for=south>Include Sydney Swans as South Melbourne</label>
+				<li v-bind:style="'display:' + (year <= 1996 ? 'none' : 'list-item')">
+					<input type=checkbox id=fitzroy v-model="fitzroy" v-on:change="onTraitorChange">
+					<label for=fitzroy>Include Brisbane Lions as Fitzroy</label>
+			</ul>
+		</details>
 
 		<hr>
 		<h2 v-text="`Season ${year}`"></h2>
@@ -44,11 +91,16 @@
 		<round v-for="round in season" v-bind:round="round" v-bind:key="round.id">
 		</round>
 
-		<h2>Ladder</h2>
+		<hr>
 
-		<div v-if="finals.length > 0">
+		<h2>Ladder</h2>
+		<ladder v-bind:ladder="ladder"></ladder>
+
+		<hr>
+
+		<div v-if="finalsSeason.length > 0" id=finalsDiv>
 			<h2 v-text="`Finals ${year}`"></h2>
-			<round v-for="round in finals" v-bind:round="round" v-bind:key="'f'+round.id">
+			<round v-for="round in finalsSeason" v-bind:round="round" v-bind:key="'f'+round.id">
 			</round>
 		</div>
 
@@ -71,11 +123,40 @@
 
 	<template id=round-template>
 		<div>
-			<h3 v-text="`Round ${round.id}`"></h3>
+			<h3 v-text="`${round.type == 'finals' ? 'Week ' : 'Round'} ${round.id}`"></h3>
 			<match v-for="(match,i) in round.matches" v-bind:match="match" v-bind:key="`${round.id}${i}`"></match>
 		</div>
 	</template>
 
+	<template id=ladder-template>
+		<table>
+			<thead>
+				<tr>
+					<th scope=col>🪜
+					<th scope=col>W
+					<th>L
+					<th scope=col>D
+					<th scope=col>For
+					<th scope=col>Agst.
+					<th scope=col>Pct.
+					<th scope=col>Pts.
+			<tbody>
+				<tr v-for="team in ladder">
+					<th v-text="team.name" scope=row>
+					<td v-text="team.win">
+					<td v-text="team.loss">
+					<td v-text="team.draw">
+					<td v-text="team.for">
+					<td v-text="team.against">
+					<td v-text="team.percent.toFixed(1)" v-bind:title="team.percent.toFixed(6)">
+					<td v-text="team.points">
+		</table>
+	</template>
 
+	<hr>
+	<footer>
+		<p><a href="https://github.com/wdporter/inner-melbourne-football-league">📝</a> <a
+				href=mailto:david.porter@fastmail.com>✉️</a>
+	</footer>
 
 	<script src=main.js></script>
