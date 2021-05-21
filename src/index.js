@@ -6,7 +6,7 @@ const thisYear = new Date().getFullYear()
 const baseYear = 1982
 
 
-
+// the year we use 
 const getYear = () => {
 
 	// get the current year
@@ -18,7 +18,7 @@ const getYear = () => {
 		hash = hash.substring(1)
 
 	year = Number(hash)
-	if (year < baseYear || year > thisYear) {
+	if ( !isNan(year) || year < baseYear || year > thisYear) {
 		year = thisYear
 	}
 	return year
@@ -133,17 +133,17 @@ const loadSeason = (year) => {
 			const roundsData = {}
 			const finalsData = {}
 			results.data.forEach(row => {
-				if (row.roundType == "finals") {
-					if (!finalsData[row.roundNumber]) {
-						finalsData[row.roundNumber] = []
-					}
-					finalsData[row.roundNumber].push(row)
-				}
-				else if (row.roundType == "round") {
+				if (row.roundType == "round") {
 					if (!roundsData[row.roundNumber]) {
 						roundsData[row.roundNumber] = []
 					}
 					roundsData[row.roundNumber].push(row)
+				}
+				else if (row.roundType == "finals") {
+					if (!finalsData[row.roundNumber]) {
+						finalsData[row.roundNumber] = []
+					}
+					finalsData[row.roundNumber].push(row)
 				}
 				else {
 					throw new Error("unexpected round type", row.roundType)
