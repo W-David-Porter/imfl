@@ -11,7 +11,7 @@
 			"skipFiles": [
 				"<node_internals>/**"
 			],
-			"program": "${workspaceFolder}\\splitfiles.js"
+			"program": "${workspaceFolder}\\splitfiles-or-actually-no-dont.js"
 		}
 	]
 }

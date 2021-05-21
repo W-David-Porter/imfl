@@ -18,7 +18,7 @@ const getYear = () => {
 		hash = hash.substring(1)
 
 	year = Number(hash)
-	if ( !isNan(year) || year < baseYear || year > thisYear) {
+	if (isNaN(year) || year < baseYear || year > thisYear) {
 		year = thisYear
 	}
 	return year
@@ -122,72 +122,79 @@ const createLadder = (season) => {
 
 };
 
+var parsed = {}
+
 const loadSeason = (year) => {
 	Papa.parse(`yeardata/${year}.csv`, {
 		download: true,
 		header: true,
 		skipEmptyLines: true,
 		complete: function (results) {
-
-			// first group them by roundNumber
-			const roundsData = {}
-			const finalsData = {}
-			results.data.forEach(row => {
-				if (row.roundType == "round") {
-					if (!roundsData[row.roundNumber]) {
-						roundsData[row.roundNumber] = []
-					}
-					roundsData[row.roundNumber].push(row)
-				}
-				else if (row.roundType == "finals") {
-					if (!finalsData[row.roundNumber]) {
-						finalsData[row.roundNumber] = []
-					}
-					finalsData[row.roundNumber].push(row)
-				}
-				else {
-					throw new Error("unexpected round type", row.roundType)
-				}
-			})
-
-			// iterate the grouped data row to make each round
-			const season = []
-			for (let roundNumber in roundsData) {
-				const currentRound = roundsData[roundNumber]
-				season.push(createRound(currentRound, roundNumber))
-			}
-			let finalsSeason = []
-			for (let roundNumber in finalsData) {
-				const currentRound = finalsData[roundNumber]
-				finalsSeason.push(createRound(currentRound, roundNumber))
-			}
-			//sometimes some finals weeks have no games, so we need to adjust the id
-			finalsSeason = finalsSeason.filter( round => {
-				return round.matches.length > 0
-			})
-			finalsSeason.forEach( (round, i) => {
-				round.id = i + 1
-			})
-
-			// create a ladder out of our season
-			const objLadder = createLadder(season)
-			const myLadder = Object.values(objLadder)
-			myLadder.sort((a, b) => {
-				if (a.points < b.points)
-					return 1
-				else if (a.points > b.points)
-					return -1
-				else
-					return (b.percent - a.percent)
-			})
-
-
-			// apply to our vue app
-			window.myApp.season = season
-			window.myApp.finalsSeason = finalsSeason
-			window.myApp.ladder = myLadder
+			parsed[year] = results.data
+			processSeason()
 		}
 	});
+}
+
+const processSeason = function () {
+	// first group them by roundNumber
+	const roundsData = {}
+	const finalsData = {}
+	parsed[window.myApp.year].forEach(row => {
+		if (row.roundType == "round") {
+			if (!roundsData[row.roundNumber]) {
+				roundsData[row.roundNumber] = []
+			}
+			roundsData[row.roundNumber].push(row)
+		}
+		else if (row.roundType == "finals") {
+			if (!finalsData[row.roundNumber]) {
+				finalsData[row.roundNumber] = []
+			}
+			finalsData[row.roundNumber].push(row)
+		}
+		else {
+			throw new Error("unexpected round type", row.roundType)
+		}
+	})
+
+	// iterate the grouped data row to make each round
+	const season = []
+	for (let roundNumber in roundsData) {
+		const currentRound = roundsData[roundNumber]
+		season.push(createRound(currentRound, roundNumber))
+	}
+	let finalsSeason = []
+	for (let roundNumber in finalsData) {
+		const currentRound = finalsData[roundNumber]
+		finalsSeason.push(createRound(currentRound, roundNumber))
+	}
+	//sometimes some finals weeks have no games, so we need to adjust the id
+	finalsSeason = finalsSeason.filter(round => {
+		return round.matches.length > 0
+	})
+	finalsSeason.forEach((round, i) => {
+		round.id = i + 1
+	})
+
+	// create a ladder out of our season
+	const objLadder = createLadder(season)
+	const myLadder = Object.values(objLadder)
+	myLadder.sort((a, b) => {
+		if (a.points < b.points)
+			return 1
+		else if (a.points > b.points)
+			return -1
+		else
+			return (b.percent - a.percent)
+	})
+
+
+	// apply to our vue app
+	window.myApp.season = season
+	window.myApp.finalsSeason = finalsSeason
+	window.myApp.ladder = myLadder
+
 }
 
 
