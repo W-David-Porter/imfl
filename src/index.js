@@ -199,7 +199,7 @@ const processSeason = function () {
 
 
 const year = getYear()
-document.title = `Inner Melbourne Football League 🏉 | ${year}`
+document.title = `Inner Melbourne Football League | ${year}`
 
 const years = getYearRange(year).reverse()
 
@@ -238,7 +238,7 @@ window.myApp = new Vue({
 	},
 	watch: {
 		year: function (val) {
-			document.title = `Inner Melbourne Football League 🏉 | ${val}`
+			document.title = `Inner Melbourne Football League | ${val}`
 		}
 	},
 	methods: {
