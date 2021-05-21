@@ -46,8 +46,8 @@ const createRound = (currentRound, roundNumber) => {
 	currentRound.forEach(row => {
 
 		if (!window.myApp.traitor)
-			if (row.homeTeam == "Fitzroy" || row.awayTeam == "Fitzroy" 
-					|| row.homeTeam == "South Melbourne" || row.awayTeam == "South Melbourne")
+			if (row.homeTeam == "Fitzroy" || row.awayTeam == "Fitzroy"
+				|| row.homeTeam == "South Melbourne" || row.awayTeam == "South Melbourne")
 				return
 
 		const match = {
@@ -123,15 +123,20 @@ const createLadder = (season) => {
 var parsed = {}
 
 const loadSeason = (year) => {
-	Papa.parse(`yeardata/${year}.csv`, {
-		download: true,
-		header: true,
-		skipEmptyLines: true,
-		complete: function (results) {
-			parsed[year] = results.data
-			processSeason()
-		}
-	});
+	if (parsed[year]) {
+		processSeason()
+	}
+	else {
+		Papa.parse(`yeardata/${year}.csv`, {
+			download: true,
+			header: true,
+			skipEmptyLines: true,
+			complete: function (results) {
+				parsed[year] = results.data
+				processSeason()
+			}
+		})
+	}
 }
 
 const processSeason = function () {
@@ -162,16 +167,16 @@ const processSeason = function () {
 		const currentRound = roundsData[roundNumber]
 		season.push(createRound(currentRound, roundNumber))
 	}
-	let finalsSeason = []
+	let finals = []
 	for (let roundNumber in finalsData) {
 		const currentRound = finalsData[roundNumber]
-		finalsSeason.push(createRound(currentRound, roundNumber))
+		finals.push(createRound(currentRound, roundNumber))
 	}
 	//sometimes some finals weeks have no games, so we need to adjust the id
-	finalsSeason = finalsSeason.filter(round => {
+	finals = finals.filter(round => {
 		return round.matches.length > 0
 	})
-	finalsSeason.forEach((round, i) => {
+	finals.forEach((round, i) => {
 		round.id = i + 1
 	})
 
@@ -179,18 +184,16 @@ const processSeason = function () {
 	const objLadder = createLadder(season)
 	const myLadder = Object.values(objLadder)
 	myLadder.sort((a, b) => {
-		if (a.points < b.points)
-			return 1
-		else if (a.points > b.points)
-			return -1
+		if (a.points == b.points)
+			return b.percent - a.percent
 		else
-			return (b.percent - a.percent)
+			return b.points - a.points
 	})
 
 
 	// apply to our vue app
 	window.myApp.season = season
-	window.myApp.finalsSeason = finalsSeason
+	window.myApp.finals = finals
 	window.myApp.ladder = myLadder
 
 }
@@ -225,7 +228,7 @@ window.myApp = new Vue({
 		years: years,
 		year: year,
 		season: [],
-		finalsSeason: [],
+		finals: [],
 		ladder: [],
 		traitor: window.localStorage.getItem("traitor") == "true"
 	},

@@ -49,9 +49,9 @@
 
 		<hr>
 
-		<div v-if="finalsSeason.length > 0" id=finalsDiv>
+		<div v-if="finals.length > 0" id=finalsDiv>
 			<h2 v-text="`Finals ${year}`"></h2>
-			<round v-for="round in finalsSeason" v-bind:round="round" v-bind:key="'f'+round.id"></round>
+			<round v-for="round in finals" v-bind:round="round" v-bind:key="'f'+round.id"></round>
 		</div>
 
 
