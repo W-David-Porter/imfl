@@ -25,27 +25,22 @@
 	</header>
 
 	<div id=app>
-		<label for=yearList></label>
+
 		<select id=yearSelect v-model="year" v-on:change="onYearChange">
 			<option v-for="y in years" v-bind:value="y" v-text="y">
 		</select>
+
 		<details>
 			<summary>⚙️</summary>
-			<ul>
-				<li>
-					<input type=checkbox id=south v-model="south" v-on:change="onTraitorChange">
-					<label for=south>Include Sydney Swans as South Melbourne</label>
-				<li v-bind:style="'display:' + (year <= 1996 ? 'none' : 'list-item')">
-					<input type=checkbox id=fitzroy v-model="fitzroy" v-on:change="onTraitorChange">
-					<label for=fitzroy>Include Brisbane Lions as Fitzroy</label>
-			</ul>
+					<input type=checkbox id=traitor v-model=traitor v-on:change=onTraitorChange>
+					<label for=traitor>Include South Melbourne and Fitzroy</label>
 		</details>
 
 		<hr>
+
 		<h2 v-text="`Season ${year}`"></h2>
 
-		<round v-for="round in season" v-bind:round="round" v-bind:key="round.id">
-		</round>
+		<round v-for="round in season" v-bind:round="round" v-bind:key="round.id"></round>
 
 		<hr>
 
@@ -56,8 +51,7 @@
 
 		<div v-if="finalsSeason.length > 0" id=finalsDiv>
 			<h2 v-text="`Finals ${year}`"></h2>
-			<round v-for="round in finalsSeason" v-bind:round="round" v-bind:key="'f'+round.id">
-			</round>
+			<round v-for="round in finalsSeason" v-bind:round="round" v-bind:key="'f'+round.id"></round>
 		</div>
 
 
@@ -68,19 +62,14 @@
 	</template>
 
 
-	<template id=match-template>
-		<div>
-			<team v-bind:score="match.homeTeam" v-bind:key="match.homeTeam.name"></team>
-			vs.
-			<team v-bind:score="match.awayTeam" v-bind:key="match.awayTeam.name"></team>
-		</div>
-	</template>
-
-
 	<template id=round-template>
 		<div>
 			<h3 v-text="`${round.type == 'finals' ? 'Week ' : 'Round'} ${round.id}`"></h3>
-			<match v-for="(match,i) in round.matches" v-bind:match="match" v-bind:key="`${round.id}${i}`"></match>
+			<div v-for="(match,i) in round.matches">
+				<team v-bind:score="match.homeTeam" v-bind:key="match.homeTeam.name"></team>
+				vs.
+				<team v-bind:score="match.awayTeam" v-bind:key="match.awayTeam.name"></team>
+			</div>
 		</div>
 	</template>
 
@@ -90,7 +79,7 @@
 				<tr>
 					<th scope=col>
 					<th scope=col>W
-					<th>L
+					<th scope=col>L
 					<th scope=col>D
 					<th scope=col>For
 					<th scope=col>Agst.
@@ -111,6 +100,7 @@
 
 	<hr>
 	<footer>
+
 		<p><a href="https://github.com/wdporter/inner-melbourne-football-league">📝</a> <a
 				href=mailto:david.porter@fastmail.com>📧</a>
 	</footer>

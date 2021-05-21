@@ -43,13 +43,11 @@ const createRound = (currentRound, roundNumber) => {
 	}
 
 	// iterate matches
-	currentRound.forEach((row) => {
+	currentRound.forEach(row => {
 
-		if (!window.myApp.fitzroy)
-			if (row.homeTeam == "Fitzroy" || row.awayTeam == "Fitzroy")
-				return
-		if (!window.myApp.south)
-			if (row.homeTeam == "South Melbourne" || row.awayTeam == "South Melbourne")
+		if (!window.myApp.traitor)
+			if (row.homeTeam == "Fitzroy" || row.awayTeam == "Fitzroy" 
+					|| row.homeTeam == "South Melbourne" || row.awayTeam == "South Melbourne")
 				return
 
 		const match = {
@@ -209,10 +207,6 @@ Vue.component("team", {
 	template: "#team-template"
 });
 
-Vue.component('match', {
-	props: ["match"],
-	template: "#match-template"
-});
 
 Vue.component('round', {
 	props: ["round"],
@@ -233,8 +227,7 @@ window.myApp = new Vue({
 		season: [],
 		finalsSeason: [],
 		ladder: [],
-		fitzroy: window.localStorage.getItem("fitzroy") == "true",
-		south: window.localStorage.getItem("south") == "true"
+		traitor: window.localStorage.getItem("traitor") == "true"
 	},
 	watch: {
 		year: function (val) {
@@ -243,22 +236,14 @@ window.myApp = new Vue({
 	},
 	methods: {
 		onTraitorChange: function (evt) {
-			window.localStorage.setItem(evt.currentTarget.id, evt.currentTarget.checked)
+			window.localStorage.setItem("traitor", evt.currentTarget.checked)
 			loadSeason(this.year)
 		},
 		onYearChange: function (evt) {
-			window.location.hash = this.year
-			if (this.year <= 1996) {
-				this.fitzroy = true
-			}
-			else {
-				this.fitzroy = window.localStorage.getItem("fitzroy") == "true"
-			}
 			loadSeason(this.year)
 		}
 	},
 	mounted: function () {
-		this.fitzroy = this.year <= 1996 || window.localStorage.getItem("fitzroy") == "true"
 		loadSeason(this.year)
 	}
 })
