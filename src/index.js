@@ -199,6 +199,8 @@ const processSeason = function () {
 
 
 const year = getYear()
+document.title = `Inner Melbourne Football League 🏉 | ${year}`
+
 const years = getYearRange(year).reverse()
 
 
@@ -233,6 +235,11 @@ window.myApp = new Vue({
 		ladder: [],
 		fitzroy: window.localStorage.getItem("fitzroy") == "true",
 		south: window.localStorage.getItem("south") == "true"
+	},
+	watch: {
+		year: function (val) {
+			document.title = `Inner Melbourne Football League 🏉 | ${val}`
+		}
 	},
 	methods: {
 		onTraitorChange: function (evt) {
