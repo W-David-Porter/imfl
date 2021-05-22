@@ -204,6 +204,28 @@ const thisYear = new Date().getFullYear()
 // these are our stores, 
 const fetchedCsv = {}
 const parsedJson = {} //it gets reset onTraitorChange
+const store = {
+	state: {
+		fetched: {},
+		parsed: {},
+	},
+
+	setFetched: (year, newValue) => {
+		fetched[year] = newValue
+	},
+	
+	setParsed: (year, newValue) => {
+		parsed[year] = newValue
+	},
+	
+	clearParsed() {
+		for (const year of Object.getOwnPropertyNames(this.state.parsedJson)) {
+			delete this.state.parsedJson[year];
+		}
+	}
+
+
+}
 
 
 //register components
@@ -232,29 +254,23 @@ const app = new Vue({
 		season: { rounds: [], finals: [], ladder: [] },
 		traitor: window.localStorage.getItem("traitor") == "true"
 	},
-	watch: {
-		year: function (val) {
-			document.title = `Inner Melbourne Football League | ${val}`
-		}
-	},
 	methods: {
 		onTraitorChange: async function (evt) {
 			this.traitor = evt.currentTarget.checked
 			window.localStorage.setItem("traitor", this.traitor)
-
 			for (const year of Object.getOwnPropertyNames(parsedJson)) {
 				delete parsedJson[year];
 			}
-
 			this.season = await loadSeason(this.year)
 		},
 		onYearChange: async function (evt) {
+			document.title = `Inner Melbourne Football League | ${this.year}`
 			this.season = await loadSeason(this.year)
 		}
 	},
 	mounted: async function () {
-		this.season = await loadSeason(this.year)
 		document.title = `Inner Melbourne Football League | ${this.year}`
+		this.season = await loadSeason(this.year)
 	}
 })
 
