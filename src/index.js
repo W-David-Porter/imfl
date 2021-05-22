@@ -41,7 +41,7 @@ const createRound = (currentRound, roundNumber) => {
 	// iterate matches
 	currentRound.forEach(row => {
 
-		if (!traitor)
+		if (!app.traitor)
 			if (row.homeTeam == "Fitzroy" || row.awayTeam == "Fitzroy"
 				|| row.homeTeam == "South Melbourne" || row.awayTeam == "South Melbourne")
 				return
@@ -198,16 +198,8 @@ const processSeason = function (data) {
 //todo can we not declare these, either pass them around or put them on vue?
 const baseYear = 1982
 const thisYear = new Date().getFullYear()
-const years = getYearRange(thisYear).reverse()
-const parsed = {}
-const currentYear = getYear()
-document.title = `Inner Melbourne Football League | ${currentYear}`
-const traitor = window.localStorage.getItem("traitor") == "true"
-
-// intialise our data before creating vue app
-const mySeason = await loadSeason(currentYear)
-// { rounds: [], finals: [], ladder: []}
-
+let parsed = {} // which is our store, it gets reset onTraitorChange
+document.title = `Inner Melbourne Football League | ${getYear()}`
 
 //register components
 Vue.component("team", {
@@ -230,10 +222,10 @@ Vue.component('ladder', {
 const app = new Vue({
 	el: "#app",
 	data: {
-		years: years, // to populate the select box
-		year: currentYear, // current year we are looking at
-		season: mySeason,
-		traitor: traitor
+		years: getYearRange(thisYear).reverse(), // to populate the select box
+		year: getYear(), // current year we are looking at
+		season: { rounds: [], finals: [], ladder: []},
+		traitor: window.localStorage.getItem("traitor") == "true"
 	},
 	watch: {
 		year: function (val) {
@@ -242,14 +234,19 @@ const app = new Vue({
 	},
 	methods: {
 		onTraitorChange: async function (evt) {
-			window.localStorage.setItem("traitor", evt.currentTarget.checked)
+			this.traitor = evt.currentTarget.checked
+			window.localStorage.setItem("traitor", this.traitor)
+			parsed = {}
 			this.season = await loadSeason(this.year)
 		},
 		onYearChange: async function (evt) {
 			this.season = await loadSeason(this.year)
 		}
+	},
+	mounted: async function() {
+		this.season = await loadSeason(this.year)
 	}
 })
 
 
-
+delete window.traitor
