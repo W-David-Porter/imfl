@@ -119,15 +119,17 @@ const createLadder = (season) => {
 
 const loadSeason = async (year) => {
 
-	if (! parsed[year]) {
+	if (!parsed[year]) {
 
-		const response = await fetch(`yeardata/${year}.csv`)
-		const csv = await response.text()
-		const results = Papa.parse(csv, {
-			header: true,
-			skipEmptyLines: true,
-		})
-		parsed[year] = results.data
+		await fetch(`yeardata/${year}.csv`)
+			.then(response => response.text())
+			.then(csv => {
+				const results = Papa.parse(csv, {
+					header: true,
+					skipEmptyLines: true,
+				})
+				parsed[year] = results.data
+			})
 	}
 
 	return processSeason(parsed[year])
