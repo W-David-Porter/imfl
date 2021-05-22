@@ -2,10 +2,6 @@ import './style.css';
 import Vue from "vue"
 import Papa from "papaparse";
 
-const thisYear = new Date().getFullYear()
-const baseYear = 1982
-
-
 // the year we use 
 const getYear = () => {
 
@@ -13,7 +9,7 @@ const getYear = () => {
 	let year = 0
 
 	// get a hash, use that instead
-	let hash = /* typeof window == "undefined" ? thisYear :*/ window.location.hash
+	let hash = window.location.hash
 	if (hash.startsWith("#"))
 		hash = hash.substring(1)
 
@@ -45,7 +41,7 @@ const createRound = (currentRound, roundNumber) => {
 	// iterate matches
 	currentRound.forEach(row => {
 
-		if (!window.myApp.traitor)
+		if (!traitor)
 			if (row.homeTeam == "Fitzroy" || row.awayTeam == "Fitzroy"
 				|| row.homeTeam == "South Melbourne" || row.awayTeam == "South Melbourne")
 				return
@@ -120,30 +116,28 @@ const createLadder = (season) => {
 
 };
 
-var parsed = {}
 
-const loadSeason = (year) => {
-	if (parsed[year]) {
-		processSeason()
-	}
-	else {
-		Papa.parse(`yeardata/${year}.csv`, {
-			download: true,
+const loadSeason = async (year) => {
+
+	if (! parsed[year]) {
+
+		const response = await fetch(`yeardata/${year}.csv`)
+		const csv = await response.text()
+		const results = Papa.parse(csv, {
 			header: true,
 			skipEmptyLines: true,
-			complete: function (results) {
-				parsed[year] = results.data
-				processSeason()
-			}
 		})
+		parsed[year] = results.data
 	}
+
+	return processSeason(parsed[year])
 }
 
-const processSeason = function () {
+const processSeason = function (data) {
 	// first group them by roundNumber
 	const roundsData = {}
 	const finalsData = {}
-	parsed[window.myApp.year].forEach(row => {
+	data.forEach(row => {
 		if (row.roundType == "round") {
 			if (!roundsData[row.roundNumber]) {
 				roundsData[row.roundNumber] = []
@@ -182,8 +176,8 @@ const processSeason = function () {
 
 	// create a ladder out of our season
 	const objLadder = createLadder(season)
-	const myLadder = Object.values(objLadder)
-	myLadder.sort((a, b) => {
+	const ladder = Object.values(objLadder)
+	ladder.sort((a, b) => {
 		if (a.points == b.points)
 			return b.percent - a.percent
 		else
@@ -192,19 +186,28 @@ const processSeason = function () {
 
 
 	// apply to our vue app
-	window.myApp.season = season
-	window.myApp.finals = finals
-	window.myApp.ladder = myLadder
-
+	return {
+		rounds: season,
+		finals,
+		ladder
+	}
 }
 
+//todo can we not declare these, either pass them around or put them on vue?
+const baseYear = 1982
+const thisYear = new Date().getFullYear()
+const years = getYearRange(thisYear).reverse()
+const parsed = {}
+const currentYear = getYear()
+document.title = `Inner Melbourne Football League | ${currentYear}`
+const traitor = window.localStorage.getItem("traitor") == "true"
 
-const year = getYear()
-document.title = `Inner Melbourne Football League | ${year}`
+// intialise our data before creating vue app
+const mySeason = await loadSeason(currentYear)
+// { rounds: [], finals: [], ladder: []}
 
-const years = getYearRange(year).reverse()
 
-
+//register components
 Vue.component("team", {
 	props: ["score"],
 	template: "#team-template"
@@ -222,15 +225,13 @@ Vue.component('ladder', {
 });
 
 
-window.myApp = new Vue({
+const app = new Vue({
 	el: "#app",
 	data: {
-		years: years,
-		year: year,
-		season: [],
-		finals: [],
-		ladder: [],
-		traitor: window.localStorage.getItem("traitor") == "true"
+		years: years, // to populate the select box
+		year: currentYear, // current year we are looking at
+		season: mySeason,
+		traitor: traitor
 	},
 	watch: {
 		year: function (val) {
@@ -238,16 +239,13 @@ window.myApp = new Vue({
 		}
 	},
 	methods: {
-		onTraitorChange: function (evt) {
+		onTraitorChange: async function (evt) {
 			window.localStorage.setItem("traitor", evt.currentTarget.checked)
-			loadSeason(this.year)
+			this.season = await loadSeason(this.year)
 		},
-		onYearChange: function (evt) {
-			loadSeason(this.year)
+		onYearChange: async function (evt) {
+			this.season = await loadSeason(this.year)
 		}
-	},
-	mounted: function () {
-		loadSeason(this.year)
 	}
 })
 

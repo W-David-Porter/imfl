@@ -40,18 +40,18 @@
 
 		<h2 v-text="`Season ${year}`"></h2>
 
-		<round v-for="round in season" v-bind:round="round" v-bind:key="round.id"></round>
+		<round v-for="round in season.rounds" v-bind:round="round" v-bind:key="round.id"></round>
 
 		<hr>
 
 		<h2>Ladder 🧬</h2>
-		<ladder v-bind:ladder="ladder"></ladder>
+		<ladder v-bind:ladder="season.ladder"></ladder>
 
 		<hr>
 
-		<div v-if="finals.length > 0" id=finalsDiv>
+		<div v-if="season.finals.length > 0" id=finalsDiv>
 			<h2 v-text="`Finals ${year}`"></h2>
-			<round v-for="round in finals" v-bind:round="round" v-bind:key="'f'+round.id"></round>
+			<round v-for="round in season.finals" v-bind:round="round" v-bind:key="'f'+round.id"></round>
 		</div>
 
 
