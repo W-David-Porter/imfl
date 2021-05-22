@@ -119,7 +119,7 @@ const createLadder = (season) => {
 
 const loadSeason = async (year) => {
 
-	if (!parsed[year]) {
+	if (!fetchedCsv[year]) {
 
 		await fetch(`yeardata/${year}.csv`)
 			.then(response => response.text())
@@ -128,11 +128,13 @@ const loadSeason = async (year) => {
 					header: true,
 					skipEmptyLines: true,
 				})
-				parsed[year] = results.data
+				fetchedCsv[year] = results.data
 			})
 	}
 
-	return processSeason(parsed[year])
+	if (!parsedJson[year])
+		parsedJson[year] = processSeason(fetchedCsv[year])
+	return parsedJson[year]
 }
 
 const processSeason = function (data) {
@@ -198,8 +200,11 @@ const processSeason = function (data) {
 //todo can we not declare these, either pass them around or put them on vue?
 const baseYear = 1982
 const thisYear = new Date().getFullYear()
-let parsed = {} // which is our store, it gets reset onTraitorChange
-document.title = `Inner Melbourne Football League | ${getYear()}`
+
+// these are our stores, 
+const fetchedCsv = {}
+const parsedJson = {} //it gets reset onTraitorChange
+
 
 //register components
 Vue.component("team", {
@@ -224,7 +229,7 @@ const app = new Vue({
 	data: {
 		years: getYearRange(thisYear).reverse(), // to populate the select box
 		year: getYear(), // current year we are looking at
-		season: { rounds: [], finals: [], ladder: []},
+		season: { rounds: [], finals: [], ladder: [] },
 		traitor: window.localStorage.getItem("traitor") == "true"
 	},
 	watch: {
@@ -236,17 +241,21 @@ const app = new Vue({
 		onTraitorChange: async function (evt) {
 			this.traitor = evt.currentTarget.checked
 			window.localStorage.setItem("traitor", this.traitor)
-			parsed = {}
+
+			for (const year of Object.getOwnPropertyNames(parsedJson)) {
+				delete parsedJson[year];
+			}
+
 			this.season = await loadSeason(this.year)
 		},
 		onYearChange: async function (evt) {
 			this.season = await loadSeason(this.year)
 		}
 	},
-	mounted: async function() {
+	mounted: async function () {
 		this.season = await loadSeason(this.year)
+		document.title = `Inner Melbourne Football League | ${this.year}`
 	}
 })
 
 
-delete window.traitor
