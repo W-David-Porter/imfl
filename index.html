@@ -7,7 +7,9 @@
 
 	<title>Inner Melbourne Football League</title>
 
-	<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css>
+	<link rel=stylesheet href=https://unpkg.com/modern-css-reset/dist/reset.min.css />
+	<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@exampledev/new.css@1/new.min.css>
+
 
 	<meta name=description content="Australian Football results relevant to Melbourne and Victoria">
   <meta property=og:title content="Inner Melbourne Football League">
@@ -26,8 +28,8 @@
 
 	<div id=app>
 
-		<select id=yearSelect v-model="year" v-on:change="onYearChange">
-			<option v-for="y in years" v-bind:value="y" v-text="y">
+		<select id=yearSelect v-model="currentYear" v-on:change="onYearChange">
+			<option v-for="y in yearRange" v-bind:value="y" v-text="y">
 		</select>
 
 		<details>
@@ -38,20 +40,20 @@
 
 		<hr>
 
-		<h2 v-text="`Season ${year}`"></h2>
+		<h2 v-text="`Season ${currentYear}`"></h2>
 
-		<round v-for="round in season.rounds" v-bind:round="round" v-bind:key="round.id"></round>
+		<round v-for="round in rounds" v-bind:round="round" v-bind:key="round.id"></round>
 
 		<hr>
 
 		<h2>Ladder 🧬</h2>
-		<ladder v-bind:ladder="season.ladder"></ladder>
+		<ladder v-bind:ladder="ladder"></ladder>
 
 		<hr>
 
-		<div v-if="season.finals.length > 0" id=finalsDiv>
-			<h2 v-text="`Finals ${year}`"></h2>
-			<round v-for="round in season.finals" v-bind:round="round" v-bind:key="'f'+round.id"></round>
+		<div v-if="finals.length > 0" id=finalsDiv>
+			<h2 v-text="`Finals ${currentYear}`"></h2>
+			<round v-for="round in finals" v-bind:round="round" v-bind:key="'f'+round.id"></round>
 		</div>
 
 

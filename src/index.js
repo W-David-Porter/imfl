@@ -1,34 +1,93 @@
-import './style.css';
+import "./style.css"
 import Vue from "vue"
 import Papa from "papaparse";
 
-// the year we use 
-const getYear = () => {
+////////////////////////////////////////////////
+// define our functions
+const loadSeason = async (year) => {
 
-	// get the current year
-	let year = 0
+	if (!seasonsCache[year]) {
+		seasonsCache[year] = {}
 
-	// get a hash, use that instead
-	let hash = window.location.hash
-	if (hash.startsWith("#"))
-		hash = hash.substring(1)
-
-	year = Number(hash)
-	if (isNaN(year) || year < baseYear || year > thisYear) {
-		year = thisYear
+		await fetch(`yeardata/${year}.csv`)
+			.then(response => response.text())
+			.then(csv => {
+				const results = Papa.parse(csv, {
+					header: true,
+					skipEmptyLines: true,
+				})
+				seasonsCache[year].json = results.data
+			})
 	}
-	return year
-};
 
-const getYearRange = () => {
-	const span = thisYear - baseYear
-	const ret = Array.from({ length: span + 1 }, (x, i) => i + baseYear);
-	return ret
-};
+	var season = processSeason(seasonsCache[year].json)
+	seasonsCache[year].rounds = season.rounds
+	seasonsCache[year].finals = season.finals
+	seasonsCache[year].ladder = season.ladder
 
-const getPoints = (goals, behinds) => {
-	return (parseInt(goals) * 6) + parseInt(behinds)
 }
+
+const processSeason = data => {
+	// first group them by roundNumber
+	const roundsData = {}
+	const finalsData = {}
+	data.forEach(row => {
+		if (row.roundType == "round") {
+			if (!roundsData[row.roundNumber]) {
+				roundsData[row.roundNumber] = []
+			}
+			roundsData[row.roundNumber].push(row)
+		}
+		else if (row.roundType == "finals") {
+			if (!finalsData[row.roundNumber]) {
+				finalsData[row.roundNumber] = []
+			}
+			finalsData[row.roundNumber].push(row)
+		}
+		else {
+			throw new Error("unexpected round type", row.roundType)
+		}
+	})
+
+	// iterate the grouped data row to make each round
+	const season = []
+	for (let roundNumber in roundsData) {
+		const currentRound = roundsData[roundNumber]
+		season.push(createRound(currentRound, roundNumber))
+	}
+	let finals = []
+	for (let roundNumber in finalsData) {
+		const currentRound = finalsData[roundNumber]
+		finals.push(createRound(currentRound, roundNumber))
+	}
+	//sometimes some finals weeks have no games, so we need to adjust the id
+	finals = finals.filter(round => {
+		return round.matches.length > 0
+	})
+	finals.forEach((round, i) => {
+		round.id = i + 1
+	})
+
+	// create a ladder out of our season
+	const objLadder = createLadder(season)
+	const ladder = Object.values(objLadder)
+	ladder.sort((a, b) => {
+		if (a.points == b.points)
+			return b.percent - a.percent
+		else
+			return b.points - a.points
+	})
+
+
+	// apply to our vue app
+	return {
+		rounds: season,
+		finals,
+		ladder
+	}
+}
+
+const getPoints = (goals, behinds) => (parseInt(goals) * 6) + parseInt(behinds)
 
 const createRound = (currentRound, roundNumber) => {
 
@@ -41,7 +100,7 @@ const createRound = (currentRound, roundNumber) => {
 	// iterate matches
 	currentRound.forEach(row => {
 
-		if (!app.traitor)
+		if (!store.traitor)
 			if (row.homeTeam == "Fitzroy" || row.awayTeam == "Fitzroy"
 				|| row.homeTeam == "South Melbourne" || row.awayTeam == "South Melbourne")
 				return
@@ -113,100 +172,55 @@ const createLadder = (season) => {
 	})
 
 	return weeklyLadder
-
-};
-
-
-const loadSeason = async (year) => {
-
-	if (!fetchedCsv[year]) {
-
-		await fetch(`yeardata/${year}.csv`)
-			.then(response => response.text())
-			.then(csv => {
-				const results = Papa.parse(csv, {
-					header: true,
-					skipEmptyLines: true,
-				})
-				fetchedCsv[year] = results.data
-			})
-	}
-
-	if (!parsedJson[year])
-		parsedJson[year] = processSeason(fetchedCsv[year])
-	return parsedJson[year]
 }
 
-const processSeason = function (data) {
-	// first group them by roundNumber
-	const roundsData = {}
-	const finalsData = {}
-	data.forEach(row => {
-		if (row.roundType == "round") {
-			if (!roundsData[row.roundNumber]) {
-				roundsData[row.roundNumber] = []
-			}
-			roundsData[row.roundNumber].push(row)
-		}
-		else if (row.roundType == "finals") {
-			if (!finalsData[row.roundNumber]) {
-				finalsData[row.roundNumber] = []
-			}
-			finalsData[row.roundNumber].push(row)
-		}
-		else {
-			throw new Error("unexpected round type", row.roundType)
-		}
-	})
-
-	// iterate the grouped data row to make each round
-	const season = []
-	for (let roundNumber in roundsData) {
-		const currentRound = roundsData[roundNumber]
-		season.push(createRound(currentRound, roundNumber))
-	}
-	let finals = []
-	for (let roundNumber in finalsData) {
-		const currentRound = finalsData[roundNumber]
-		finals.push(createRound(currentRound, roundNumber))
-	}
-	//sometimes some finals weeks have no games, so we need to adjust the id
-	finals = finals.filter(round => {
-		return round.matches.length > 0
-	})
-	finals.forEach((round, i) => {
-		round.id = i + 1
-	})
-
-	// create a ladder out of our season
-	const objLadder = createLadder(season)
-	const ladder = Object.values(objLadder)
-	ladder.sort((a, b) => {
-		if (a.points == b.points)
-			return b.percent - a.percent
-		else
-			return b.points - a.points
-	})
 
 
-	// apply to our vue app
-	return {
-		rounds: season,
-		finals,
-		ladder
-	}
+///////////////////////////////////////////////
+// define some needed constants
+const BASE_YEAR = 1982
+const NOW_YEAR = new Date().getFullYear()
+const seasonsCache = {
+	//e.g. "1982": {json: "", rounds: [], finals: [], ladder: [] }
 }
 
-//todo can we not declare these, either pass them around or put them on vue?
-const baseYear = 1982
-const thisYear = new Date().getFullYear()
 
-// these are our stores, 
-const fetchedCsv = {}
-const parsedJson = {} //it gets reset onTraitorChange
+///////////////////////////////////////////////
+// execution starts here
+
+// this will go into our vue instance
+const store = {
+	traitor: window.localStorage.getItem("traitor") == "true"
+}
+
+// get our range of years
+store.yearRange = Array.from(Array(NOW_YEAR - BASE_YEAR + 1), (_, year) => year + BASE_YEAR).reverse()
+
+// find out what year we are viewing
+store.currentYear = NOW_YEAR
+if (location.hash.length > 1) {
+	const num = parseInt(location.hash.substring(1))
+	if (!isNaN(num) && num >= BASE_YEAR && num <= NOW_YEAR)
+		store.currentYear = num
+}
+document.title = `Inner Melbourne Football League | ${store.currentYear}`
 
 
-//register components
+//load our initial year's data
+await loadSeason(store.currentYear)
+if (seasonsCache[store.currentYear].rounds.length == 0) {
+	--store.currentYear // and try again
+	store.yearRange.shift()
+	await loadSeason(store.currentYear)
+}
+
+store.rounds = seasonsCache[store.currentYear].rounds
+store.finals = seasonsCache[store.currentYear].finals
+store.ladder = seasonsCache[store.currentYear].ladder
+
+
+///////////////////////////////////////////
+// create our vue components
 Vue.component("team", {
 	props: ["score"],
 	template: "#team-template"
@@ -224,30 +238,30 @@ Vue.component('ladder', {
 });
 
 
+////////////////////////////////////////////
+// create our vue instance
+
 const app = new Vue({
 	el: "#app",
-	data: {
-		years: getYearRange(thisYear).reverse(), // to populate the select box
-		year: getYear(), // current year we are looking at
-		season: { rounds: [], finals: [], ladder: [] },
-		traitor: window.localStorage.getItem("traitor") == "true"
-	},
+	data: store,
 	methods: {
 		onTraitorChange: async function (evt) {
 			window.localStorage.setItem("traitor", this.traitor)
-			for (const year of Object.getOwnPropertyNames(parsedJson)) {
-				delete parsedJson[year];
+			for (const year of Object.getOwnPropertyNames(seasonsCache)) {
+				delete seasonsCache[year];
 			}
-			this.season = await loadSeason(this.year)
+			await loadSeason(this.currentYear)
+			store.rounds = seasonsCache[store.currentYear].rounds
+			store.finals = seasonsCache[store.currentYear].finals
+			store.ladder = seasonsCache[store.currentYear].ladder
 		},
 		onYearChange: async function (evt) {
-			document.title = `Inner Melbourne Football League | ${this.year}`
-			this.season = await loadSeason(this.year)
+			document.title = `Inner Melbourne Football League | ${this.currentYear}`
+			await loadSeason(this.currentYear)
+			store.rounds = seasonsCache[store.currentYear].rounds
+			store.finals = seasonsCache[store.currentYear].finals
+			store.ladder = seasonsCache[store.currentYear].ladder
 		}
-	},
-	mounted: async function () {
-		document.title = `Inner Melbourne Football League | ${this.year}`
-		this.season = await loadSeason(this.year)
 	}
 })
 
