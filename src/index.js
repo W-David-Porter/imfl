@@ -19,12 +19,13 @@ const loadSeason = async (year) => {
 				seasonsCache[year].json = results.data
 			})
 	}
-
-	var season = processSeason(seasonsCache[year].json)
-	seasonsCache[year].rounds = season.rounds
-	seasonsCache[year].finals = season.finals
-	seasonsCache[year].ladder = season.ladder
-
+	
+	if (!seasonsCache[year].rounds) {
+		var season = processSeason(seasonsCache[year].json)
+		seasonsCache[year].rounds = season.rounds
+		seasonsCache[year].finals = season.finals
+		seasonsCache[year].ladder = season.ladder
+	}
 }
 
 const processSeason = data => {
