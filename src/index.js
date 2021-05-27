@@ -26,6 +26,11 @@ const loadSeason = async (year) => {
 		seasonsCache[year].finals = season.finals
 		seasonsCache[year].ladder = season.ladder
 	}
+
+	store.rounds = seasonsCache[store.currentYear].rounds
+store.finals = seasonsCache[store.currentYear].finals
+store.ladder = seasonsCache[store.currentYear].ladder
+
 }
 
 const processSeason = data => {
@@ -215,10 +220,6 @@ if (seasonsCache[store.currentYear].rounds.length == 0) {
 	await loadSeason(store.currentYear)
 }
 
-store.rounds = seasonsCache[store.currentYear].rounds
-store.finals = seasonsCache[store.currentYear].finals
-store.ladder = seasonsCache[store.currentYear].ladder
-
 
 ///////////////////////////////////////////
 // create our vue components
@@ -252,16 +253,10 @@ const app = new Vue({
 				delete seasonsCache[year];
 			}
 			await loadSeason(this.currentYear)
-			store.rounds = seasonsCache[store.currentYear].rounds
-			store.finals = seasonsCache[store.currentYear].finals
-			store.ladder = seasonsCache[store.currentYear].ladder
 		},
 		onYearChange: async function (evt) {
 			document.title = `Inner Melbourne Football League | ${this.currentYear}`
 			await loadSeason(this.currentYear)
-			store.rounds = seasonsCache[store.currentYear].rounds
-			store.finals = seasonsCache[store.currentYear].finals
-			store.ladder = seasonsCache[store.currentYear].ladder
 		}
 	}
 })
