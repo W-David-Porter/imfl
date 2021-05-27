@@ -19,7 +19,7 @@ const loadSeason = async (year) => {
 				seasonsCache[year].json = results.data
 			})
 	}
-	
+
 	if (!seasonsCache[year].rounds) {
 		var season = processSeason(seasonsCache[year].json)
 		seasonsCache[year].rounds = season.rounds
@@ -28,8 +28,8 @@ const loadSeason = async (year) => {
 	}
 
 	store.rounds = seasonsCache[store.currentYear].rounds
-store.finals = seasonsCache[store.currentYear].finals
-store.ladder = seasonsCache[store.currentYear].ladder
+	store.finals = seasonsCache[store.currentYear].finals
+	store.ladder = seasonsCache[store.currentYear].ladder
 
 }
 
@@ -249,7 +249,7 @@ const app = new Vue({
 	methods: {
 		onTraitorChange: async function (evt) {
 			window.localStorage.setItem("traitor", this.traitor)
-			for (const year of Object.getOwnPropertyNames(seasonsCache)) {
+			for (const year in seasonsCache) {
 				delete seasonsCache[year];
 			}
 			await loadSeason(this.currentYear)
