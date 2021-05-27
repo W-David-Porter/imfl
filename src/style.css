@@ -19,6 +19,10 @@ nav {
 	font-style: italic
 }
 
+div.table-div {
+	overflow-x: scroll;
+}
+
 tr:nth-child(5) {
 	border-bottom: 5px #ccc double;
 }
@@ -48,4 +52,11 @@ select {
 footer a {
 	font-size: 3rem;
 	text-decoration: none;
+}
+
+@media screen and (max-width: 600px) {
+	div.table-div {
+		word-break: initial;
+	}
+
 }

@@ -12,13 +12,15 @@
 
 
 	<meta name=description content="Australian Football results relevant to Melbourne and Victoria">
-  <meta property=og:title content="Inner Melbourne Football League">
-  <meta property=og:description content="Australian Football results relevant to Melbourne and Victoria">
-  <meta property=og:locale content=en_AU>
-  <meta property=og:type content=website>
-  <meta property=og:url content=https://imfl.neocities.org>
+	<meta property=og:title content="Inner Melbourne Football League">
+	<meta property=og:description content="Australian Football results relevant to Melbourne and Victoria">
+	<meta property=og:locale content=en_AU>
+	<meta property=og:type content=website>
+	<meta property=og:url content=https://imfl.neocities.org>
 	<link rel=canonical href=https://imfl.neocities.org />
-	<link rel=icon href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🏉</text></svg>"  type=image/svg+xml>
+	<link rel=icon
+		href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🏉</text></svg>"
+		type=image/svg+xml>
 
 <body>
 	<header>
@@ -34,8 +36,8 @@
 
 		<details>
 			<summary>⚙️</summary>
-					<input type=checkbox id=traitor v-model=traitor v-on:change=onTraitorChange>
-					<label for=traitor>Include South Melbourne and Fitzroy</label>
+			<input type=checkbox id=traitor v-model=traitor v-on:change=onTraitorChange>
+			<label for=traitor>Include South Melbourne and Fitzroy</label>
 		</details>
 
 		<hr>
@@ -46,7 +48,7 @@
 
 		<hr>
 
-		<h2>Ladder 🧬</h2>
+		<h2>Ladder 🪜</h2>
 		<ladder v-bind:ladder="ladder"></ladder>
 
 		<hr>
@@ -60,7 +62,7 @@
 	</div>
 
 	<template id=team-template>
-		<span v-text="`${score.name} ${score.goals}.${score.behinds}.${score.points}`" v-bind:class="score.result"></span>
+		<span v-html="`${score.name} ${score.goals}.${score.behinds}.${score.points}`" v-bind:class="score.result"></span>
 	</template>
 
 
@@ -69,41 +71,42 @@
 			<h3 v-text="`${round.type == 'finals' ? 'Week ' : 'Round'} ${round.id}`"></h3>
 			<div v-for="(match,i) in round.matches">
 				<team v-bind:score="match.homeTeam" v-bind:key="match.homeTeam.name"></team>
-				vs.
-				<team v-bind:score="match.awayTeam" v-bind:key="match.awayTeam.name"></team>
+				vs. <team v-bind:score="match.awayTeam" v-bind:key="match.awayTeam.name"></team>
 			</div>
 		</div>
 	</template>
 
 	<template id=ladder-template>
-		<table>
-			<thead>
-				<tr>
-					<th scope=col>
-					<th scope=col>W
-					<th scope=col>L
-					<th scope=col>D
-					<th scope=col>For
-					<th scope=col>Agst.
-					<th scope=col>Pct.
-					<th scope=col>Pts.
-			<tbody>
-				<tr v-for="team in ladder">
-					<th v-text="team.name" scope=row>
-					<td v-text="team.win">
-					<td v-text="team.loss">
-					<td v-text="team.draw">
-					<td v-text="team.for">
-					<td v-text="team.against">
-					<td v-text="team.percent.toFixed(1)" v-bind:title="team.percent.toFixed(6)">
-					<td v-text="team.points">
-		</table>
+		<div class=table-div>
+			<table>
+				<thead>
+					<tr>
+						<th scope=col>
+						<th scope=col>W
+						<th scope=col>L
+						<th scope=col>D
+						<th scope=col>For
+						<th scope=col>Agst.
+						<th scope=col>Pct.
+						<th scope=col>Pts.
+				<tbody>
+					<tr v-for="team in ladder">
+						<th v-text="team.name" scope=row>
+						<td v-text="team.win">
+						<td v-text="team.loss">
+						<td v-text="team.draw">
+						<td v-text="team.for">
+						<td v-text="team.against">
+						<td v-text="team.percent.toFixed(1)" v-bind:title="team.percent.toFixed(6)">
+						<td v-text="team.points">
+			</table>
+		</div>
 	</template>
 
 	<hr>
 	<footer>
 
-		<p><a href="https://github.com/wdporter/inner-melbourne-football-league">📝</a> <a
+		<p><a href="https://github.com/wdporter/inner-melbourne-football-league">📜</a> <a
 				href=mailto:david.porter@fastmail.com>📧</a>
 	</footer>
 
