@@ -19,9 +19,6 @@ nav {
 	font-style: italic
 }
 
-div.table-div {
-	overflow-x: scroll;
-}
 
 tr:nth-child(5) {
 	border-bottom: 5px #ccc double;
@@ -57,6 +54,7 @@ footer a {
 @media screen and (max-width: 600px) {
 	div.table-div {
 		word-break: initial;
+		overflow-x: scroll;
 	}
 
 }
