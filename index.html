@@ -61,9 +61,9 @@
 
 	</div>
 
-	<template id=team-template>
-		<span v-html="`${score.name} ${score.goals}.${score.behinds}.${score.points}`" v-bind:class="score.result"></span>
-	</template>
+<!--	<template id=team-template>
+	created programatically, see index.js
+	</template>-->
 
 
 	<template id=round-template>
@@ -76,7 +76,7 @@
 		</div>
 	</template>
 
-	<template id=ladder-template>
+<template id=ladder-template>
 		<div class=table-div>
 			<table>
 				<thead>
@@ -90,7 +90,7 @@
 						<th scope=col>Pct.
 						<th scope=col>Pts.
 				<tbody>
-					<tr v-for="team in ladder">
+					<tr v-for="team in ladder" :key="team.name">
 						<th v-text="team.name" scope=row>
 						<td v-text="team.win">
 						<td v-text="team.loss">
@@ -102,6 +102,7 @@
 			</table>
 		</div>
 	</template>
+
 
 	<hr>
 	<footer>

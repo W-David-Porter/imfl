@@ -1,6 +1,7 @@
 import "./style.css"
 import Vue from "vue"
-import Papa from "papaparse";
+import Papa from "papaparse"
+
 
 ////////////////////////////////////////////////
 // define our functions
@@ -223,20 +224,21 @@ if (seasonsCache[store.currentYear].rounds.length == 0) {
 
 ///////////////////////////////////////////
 // create our vue components
+
+// if all components were like this,
+// didn't have markup, then we could use the cut-down vuejs library
 Vue.component("team", {
 	props: ["score"],
-	template: "#team-template"
-});
-
-
-Vue.component('round', {
-	props: ["round"],
-	template: "#round-template"
-});
-
-Vue.component('ladder', {
-	props: ["ladder"],
-	template: "#ladder-template"
+	render: function(createElement)  { 
+		return createElement(
+			"span",
+			{
+				class: this.score.result,
+				domProps: {
+					innerHTML: `${this.score.name} ${this.score.goals}.${this.score.behinds}.${this.score.points}`
+				}
+			})
+		}
 });
 
 
@@ -245,6 +247,16 @@ Vue.component('ladder', {
 
 const app = new Vue({
 	el: "#app",
+	components: {
+		ladder: {
+			props: ["ladder"],
+			template: "#ladder-template"
+		},
+		round: {
+			props: ["round"],
+			template: "#round-template"
+		}
+	},
 	data: store,
 	methods: {
 		onTraitorChange: async function (evt) {
