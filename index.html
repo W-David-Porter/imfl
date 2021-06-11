@@ -44,7 +44,7 @@
 
 		<h2 v-text="`Season ${currentYear}`"></h2>
 
-		<round v-for="round in rounds" v-bind:round="round" v-bind:key="round.id"></round>
+		<round v-for="round in rounds" v-bind:round="round" v-bind:key="round.id" v-if="round.matches.length > 0"></round>
 
 		<hr>
 
@@ -61,7 +61,7 @@
 
 	</div>
 
-<!--	<template id=team-template>
+	<!--	<template id=team-template>
 	created programatically, see index.js
 	</template>-->
 
@@ -76,7 +76,7 @@
 		</div>
 	</template>
 
-<template id=ladder-template>
+	<template id=ladder-template>
 		<div class=table-div>
 			<table>
 				<thead>
