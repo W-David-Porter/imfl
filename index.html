@@ -1,0 +1,252 @@
+<!doctype html>
+<html>
+
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width">
+<link rel=icon
+href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🏉</text></svg>"
+type="image/svg+xml">
+
+<title>Inner Melbourne Football League</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-fonts@1.1.1/fonts/inter.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
+<link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
+<!-- <link rel="stylesheet" href="https://newcss.net/theme/terminal.css"> -->
+
+<style>
+* {
+	font-variant: no-common-ligatures
+}
+
+td {
+	font-variant-numeric: tabular-nums
+}
+
+th.right,
+td.right {
+	text-align: right;
+}
+
+footer {
+	background: var(--nc-bg-2);
+	border-top: 1px solid var(--nc-bg-3);
+	padding: 2rem 1.5rem;
+	margin: 2rem calc(0px - (50vw - 50%)) -2rem;
+	padding-left: calc(50vw - 50%);
+	padding-right: calc(50vw - 50%);
+	text-align: center;
+}
+
+tr:nth-child(5) th,
+tr:nth-child(5) td {
+	border-bottom: 3px solid #d5d5d5
+}
+
+.bold {
+	font-weight: bold;
+}
+
+.italic {
+	font-style: italic;
+}
+
+@media (prefers-color-scheme: dark) {
+
+	tr:nth-child(5) th,
+	tr:nth-child(5) td {
+		border-bottom: 3px solid #333333
+	}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>Inner Melbourne Football League</h1>
+</header>
+
+<main id=app>
+<div v-show="false">Only works on chrome-based browsers</div>
+
+<p>
+	<label for="yearSelect">Year:</label>&ensp;
+	<select v-model="currentYear">
+		<option v-for="year in years" :value="year">{{ year }}</option>
+	</select>
+</p>
+
+<Season :season="season"></Season>
+
+<p style="height:3em"> </p>
+
+<details>
+	<summary>⚙️</summary>
+	<p>
+		<label for="southCheck">
+			<input type="checkbox" v-model="south" id="southCheck" />
+			Show Sydney as South Melbourne</label>
+	</p>
+
+	<p>
+		<label for="fitzCheck">
+			<input type="checkbox" v-model="fitz" id="fitzCheck" />
+			Show Brisbane as Fitzroy (post 1996)</label>
+	</p>
+</details>
+
+</main>
+
+<footer>
+made with ❤️ by W. David Porter
+</footer>
+
+
+<!-- <script type=importmap>
+{
+	"imports": {
+		"vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js",
+		"season": "./components/season.js",
+		"csv": "https://cdn.jsdelivr.net/npm/csv-parse@5.3.0/dist/esm/index.js"
+	}
+}
+</script> -->
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+<script type="module">
+
+import { createApp, ref, watch } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js" //"vue"
+import Season from "./components/season.js" // "season"
+import { parse } from "https://cdn.jsdelivr.net/npm/csv-parse@5.3.0/dist/esm/index.js" //"csv"
+
+createApp({
+	components: {
+		Season
+	},
+	setup() {
+
+		const season = ref({
+			year: 2022,
+			rounds: [],
+			finals: []
+		})
+
+		const currentYear = ref("")
+
+		const years = ref(["2022", "2021"])
+
+		const south = ref(false)
+		const fitz = ref(false)
+
+		return {
+			season,
+			years,
+			currentYear,
+			south,
+			fitz
+		}
+	},
+	methods: {
+		cast(value, context) {
+			if (context.column == "homeGoals" || context.column == "homeBehinds" || context.column == "awayGoals" || context.column == "awayBehinds")
+				return parseInt(value)
+			else
+				return value
+		},
+		changeSeason() {
+			const vue = this
+			fetch(`./data/${this.currentYear}.csv`)
+				.then(response => response.text())
+				.then(text => {
+					// h & a
+					parse(text, {
+						columns: true,
+						cast: this.cast,
+						on_record(record, lines) {
+							if (vue.fitz == false && vue.currentYear > 1996 && (record.homeTeam == "Fitzroy" || record.awayTeam == "Fitzroy"))
+								return null
+							if (vue.south == false && (record.homeTeam == "South Melbourne" || record.awayTeam == "South Melbourne"))
+								return null
+							if (record.roundType == "round")
+								return record
+							else
+								return null // finals
+						}
+					}, (err, data) => {
+						//console.log(data)
+						this.season = {
+							year: this.currentYear,
+							rounds: []
+						}
+						let currentRoundNumber = 0, previousRoundNumber = 0
+						data.forEach(d => {
+							if (d.roundNumber != previousRoundNumber) {
+								previousRoundNumber = d.roundNumber
+								++currentRoundNumber
+								this.season.rounds.push({
+									roundNumber: currentRoundNumber,
+									matches: [d]
+								})
+							}
+							else {
+								this.season.rounds.at(-1).matches.push(d)
+							}
+						})
+					})
+					// finals
+					parse(text, {
+						columns: true,
+						cast: this.cast,
+						on_record(record, lines) {
+							if (vue.fitz == false && vue.currentYear > 1996 && (record.homeTeam == "Fitzroy" || record.awayTeam == "Fitzroy"))
+								return null
+							if (vue.south == false && (record.homeTeam == "South Melbourne" || record.awayTeam == "South Melbourne"))
+								return null
+							if (record.roundType == "finals")
+								return record
+							else
+								return null // finals
+						}
+					}, (err, data) => {
+						//console.log(data)
+						this.season.finals = []
+						let roundNumber = 0
+						data.forEach(d => {
+							if (d.roundNumber != roundNumber) {
+								++roundNumber
+								this.season.finals[roundNumber - 1] = {
+									roundNumber: d.roundNumber,
+									matches: [d]
+								}
+							}
+							else {
+								this.season.finals[roundNumber - 1].matches.push(d)
+							}
+						})
+					})
+				})
+		}
+	},
+	mounted() {
+		this.$watch("currentYear", function () { this.changeSeason() })
+		this.$watch("fitz", function () { this.changeSeason() })
+		this.$watch("south", function () { this.changeSeason() })
+
+		fetch("/data/latest.txt")
+			.then(response => response.text())
+			.then(text => {
+				this.currentYear = text
+
+				this.years = Array.from({ length: parseInt(this.currentYear) - 1982 + 1 }, (x, i) => i + 1982).reverse()
+			})
+	}
+}).mount('#app')
+</script>
+
+
+</body>
+
+</html>
