@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang=en>
 
 <head>
 <meta charset=utf-8>
@@ -10,12 +10,25 @@ type="image/svg+xml">
 
 <title>Inner Melbourne Football League</title>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-fonts@1.1.1/fonts/inter.min.css">
+<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-fonts@1.1.1/fonts/inter.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
-<link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
+<link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css"> -->
 <!-- <link rel="stylesheet" href="https://newcss.net/theme/terminal.css"> -->
 
+<link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.classless.min.css">
+
 <style>
+
+/* fix some pico styles, comment out if reverting to new.css */
+header, main {
+	padding: 1em 0 0 0 !important;
+}
+h2, h3, p {
+	margin: 0 0 0 0  !important;
+}
+
+/* end pico */
+
 * {
 	font-variant: no-common-ligatures
 }
@@ -65,15 +78,13 @@ tr:nth-child(5) td {
 <body>
 
 <header>
-<h1>Inner Melbourne Football League</h1>
+<h1>Inner Melbourne Football League 🏉</h1>
 </header>
 
 <main id=app>
-<div v-show="false">Only works on chrome-based browsers</div>
 
 <p>
-	<label for="yearSelect">Year:</label>&ensp;
-	<select v-model="currentYear">
+	<label for="yearSelect">Year:</label><select v-model="currentYear" title="choose year">
 		<option v-for="year in years" :value="year">{{ year }}</option>
 	</select>
 </p>
