@@ -18,14 +18,18 @@ type="image/svg+xml">
 <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.classless.min.css">
 
 <style>
-
 /* fix some pico styles, comment out if reverting to new.css */
-header, main {
+header,
+main {
 	padding: 1em 0 0 0 !important;
 }
-h2, h3, p {
-	margin: 0 0 0 0  !important;
+
+h2,
+h3,
+p {
+	margin: 0 0 0 0 !important;
 }
+
 /* end pico */
 
 * {
@@ -116,11 +120,11 @@ made with ❤️ by W. David Porter
 
 <!-- <script type=importmap>
 {
-	"imports": {
-		"vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js",
-		"season": "./components/season.js",
-		"csv": "https://cdn.jsdelivr.net/npm/csv-parse@5.3.0/dist/esm/index.js"
-	}
+"imports": {
+"vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js",
+"season": "./components/season.js",
+"csv": "https://cdn.jsdelivr.net/npm/csv-parse@5.3.0/dist/esm/index.js"
+}
 }
 </script> -->
 
@@ -144,113 +148,115 @@ createApp({
 
 		const currentYear = ref("")
 
-		const years = ref(["2022", "2021"])
+		let years = ref([])
 
 		const south = ref(false)
 		const fitz = ref(false)
+
+		function cast(value, context) {
+			if (context.column == "homeGoals" || context.column == "homeBehinds" || context.column == "awayGoals" || context.column == "awayBehinds")
+				return parseInt(value)
+			else
+				return value
+		}
+
+		async function getLatestYear() {
+			const response = await fetch("/data/latest.txt")
+			const text = await response.text()
+			currentYear.value = text
+			years.value = Array.from({ length: parseInt(currentYear.value) - 1982 + 1 }, (x, i) => i + 1982).reverse()
+		}
+
+		getLatestYear()
+
+		async function changeSeason() {
+			//const vue = this
+			const response = await fetch(`./data/${currentYear.value}.csv`)
+			const text = await response.text()
+			// h & a
+			parse(text, {
+				columns: true,
+				cast: cast,
+				on_record(record, lines) {
+					if (fitz.value == false && currentYear > 1996 && (record.homeTeam == "Fitzroy" || record.awayTeam == "Fitzroy"))
+						return null
+					if (south.value == false && (record.homeTeam == "South Melbourne" || record.awayTeam == "South Melbourne"))
+						return null
+					if (record.roundType == "round")
+						return record
+					else
+						return null // finals
+				}
+			}, (err, data) => {
+				//console.log(data)
+				season.value = {
+					year: currentYear,
+					rounds: []
+				}
+				let currentRoundNumber = 0, previousRoundNumber = 0
+				data.forEach(d => {
+					if (d.roundNumber != previousRoundNumber) {
+						previousRoundNumber = d.roundNumber
+						++currentRoundNumber
+						season.value.rounds.push({
+							roundNumber: currentRoundNumber,
+							matches: [d]
+						})
+					}
+					else {
+						season.value.rounds.at(-1).matches.push(d)
+					}
+				})
+			})
+			// finals
+			parse(text, {
+				columns: true,
+				cast: cast,
+				on_record(record, lines) {
+					if (fitz.value == false && currentYear.value > 1996 && (record.homeTeam == "Fitzroy" || record.awayTeam == "Fitzroy"))
+						return null
+					if (south.value == false && (record.homeTeam == "South Melbourne" || record.awayTeam == "South Melbourne"))
+						return null
+					if (record.roundType == "finals")
+						return record
+					else
+						return null // finals
+				}
+			}, (err, data) => {
+				//console.log(data)
+				season.value.finals = []
+				let roundNumber = 0
+				data.forEach(d => {
+					if (d.roundNumber != roundNumber) {
+						++roundNumber
+						season.value.finals[roundNumber - 1] = {
+							roundNumber: d.roundNumber,
+							matches: [d]
+						}
+					}
+					else {
+						this.season.finals[roundNumber - 1].matches.push(d)
+					}
+				})
+			})
+
+		}
+
+		watch(currentYear, changeSeason)
+		watch(fitz, changeSeason)
+		watch(south, changeSeason)
 
 		return {
 			season,
 			years,
 			currentYear,
 			south,
-			fitz
+			fitz,
+			cast
 		}
 	},
-	methods: {
-		cast(value, context) {
-			if (context.column == "homeGoals" || context.column == "homeBehinds" || context.column == "awayGoals" || context.column == "awayBehinds")
-				return parseInt(value)
-			else
-				return value
-		},
-		changeSeason() {
-			const vue = this
-			fetch(`./data/${this.currentYear}.csv`)
-				.then(response => response.text())
-				.then(text => {
-					// h & a
-					parse(text, {
-						columns: true,
-						cast: this.cast,
-						on_record(record, lines) {
-							if (vue.fitz == false && vue.currentYear > 1996 && (record.homeTeam == "Fitzroy" || record.awayTeam == "Fitzroy"))
-								return null
-							if (vue.south == false && (record.homeTeam == "South Melbourne" || record.awayTeam == "South Melbourne"))
-								return null
-							if (record.roundType == "round")
-								return record
-							else
-								return null // finals
-						}
-					}, (err, data) => {
-						//console.log(data)
-						this.season = {
-							year: this.currentYear,
-							rounds: []
-						}
-						let currentRoundNumber = 0, previousRoundNumber = 0
-						data.forEach(d => {
-							if (d.roundNumber != previousRoundNumber) {
-								previousRoundNumber = d.roundNumber
-								++currentRoundNumber
-								this.season.rounds.push({
-									roundNumber: currentRoundNumber,
-									matches: [d]
-								})
-							}
-							else {
-								this.season.rounds.at(-1).matches.push(d)
-							}
-						})
-					})
-					// finals
-					parse(text, {
-						columns: true,
-						cast: this.cast,
-						on_record(record, lines) {
-							if (vue.fitz == false && vue.currentYear > 1996 && (record.homeTeam == "Fitzroy" || record.awayTeam == "Fitzroy"))
-								return null
-							if (vue.south == false && (record.homeTeam == "South Melbourne" || record.awayTeam == "South Melbourne"))
-								return null
-							if (record.roundType == "finals")
-								return record
-							else
-								return null // finals
-						}
-					}, (err, data) => {
-						//console.log(data)
-						this.season.finals = []
-						let roundNumber = 0
-						data.forEach(d => {
-							if (d.roundNumber != roundNumber) {
-								++roundNumber
-								this.season.finals[roundNumber - 1] = {
-									roundNumber: d.roundNumber,
-									matches: [d]
-								}
-							}
-							else {
-								this.season.finals[roundNumber - 1].matches.push(d)
-							}
-						})
-					})
-				})
-		}
-	},
-	mounted() {
-		this.$watch("currentYear", function () { this.changeSeason() })
-		this.$watch("fitz", function () { this.changeSeason() })
-		this.$watch("south", function () { this.changeSeason() })
 
-		fetch("/data/latest.txt")
-			.then(response => response.text())
-			.then(text => {
-				this.currentYear = text
-
-				this.years = Array.from({ length: parseInt(this.currentYear) - 1982 + 1 }, (x, i) => i + 1982).reverse()
-			})
-	}
+	
 }).mount('#app')
 </script>
 
