@@ -4,26 +4,14 @@ export default {
 	},
 
 	setup(props) {
-		// jus a pointless example of "setup" in a component
-		let match = "hi"
-		
-		if (props.rounds.length == 0)
-			match = "no rounds"
-		
-			return {
-			match
-		}
-	},
-	methods: {
-		homePoints(m) { return m.homeGoals * 6 + m.homeBehinds },
-		awayPoints(m) { return m.awayGoals * 6 + m.awayBehinds },
-		makeLadder() {
-			if (this.rounds.length == 0)
+
+		function makeLadder() {
+			if (props.rounds.length == 0)
 				return []
 
 			const teams = {}
 
-			this.rounds.forEach(r => {
+			props.rounds.forEach(r => {
 				r.matches.forEach(m => {
 					if (!teams[m.homeTeam]) {
 						teams[m.homeTeam] = {
@@ -72,16 +60,20 @@ export default {
 
 			const ret = Object.keys(teams).map(t => teams[t])
 
-			ret.sort(function(a, b) {
-				if ( (a.won * 4) + (a.drawn * 2) > (b.won * 4) + (b.drawn * 2))
+			ret.sort(function (a, b) {
+				if ((a.won * 4) + (a.drawn * 2) > (b.won * 4) + (b.drawn * 2))
 					return -1
-				else if ( (a.won * 4) + (a.drawn * 2) < (b.won * 4) + (b.drawn * 2))
+				else if ((a.won * 4) + (a.drawn * 2) < (b.won * 4) + (b.drawn * 2))
 					return 1
-				else if ( a.for / a.against > b.for / b.against )
+				else if (a.played < b.played)
 					return -1
-				else if ( a.for / a.against < b.for / b.against )
+				else if (a.played > b.played)
 					return 1
-				else 
+				else if (a.for / a.against > b.for / b.against)
+					return -1
+				else if (a.for / a.against < b.for / b.against)
+					return 1
+				else
 					return a.name > b.name ? -1 : 1
 			})
 
@@ -89,6 +81,16 @@ export default {
 			return ret
 
 		}
+
+		return {
+			makeLadder
+		}
+
+
+	},
+	methods: {
+		homePoints(m) { return m.homeGoals * 6 + m.homeBehinds },
+		awayPoints(m) { return m.awayGoals * 6 + m.awayBehinds },
 	},
 	template: `
 <div style="overflow-x: auto;">

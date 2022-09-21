@@ -138,6 +138,7 @@ createApp({
 	components: {
 		Season
 	},
+	
 	setup() {
 
 		const season = ref({
@@ -162,8 +163,7 @@ createApp({
 
 		async function getLatestYear() {
 			const response = await fetch("/data/latest.txt")
-			const text = await response.text()
-			currentYear.value = text
+			currentYear.value = await response.text()
 			years.value = Array.from({ length: parseInt(currentYear.value) - 1982 + 1 }, (x, i) => i + 1982).reverse()
 		}
 
@@ -235,7 +235,7 @@ createApp({
 						}
 					}
 					else {
-						this.season.finals[roundNumber - 1].matches.push(d)
+						season.value.finals[roundNumber - 1].matches.push(d)
 					}
 				})
 			})
