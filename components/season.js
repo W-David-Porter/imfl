@@ -16,7 +16,7 @@ export default {
 		</div>
 
 		<div>
-			<h2>🪜</h2>
+			<h2>Ladder</h2>
 			<Ladder :rounds="season.rounds"></Ladder>
 
 		</div>

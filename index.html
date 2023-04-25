@@ -8,37 +8,20 @@
 href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🏉</text></svg>"
 type="image/svg+xml">
 
+
 <title>Inner Melbourne Football League</title>
 
-<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/open-fonts@1.1.1/fonts/inter.min.css">
+<link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
-<link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css"> -->
-<!-- <link rel="stylesheet" href="https://newcss.net/theme/terminal.css"> -->
-
-<link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.classless.min.css">
+<link rel="stylesheet" href="https://newcss.net/theme/terminal.css">
 
 <style>
-/* fix some pico styles, comment out if reverting to new.css */
-header,
-main {
-	padding: 1em 0 0 0 !important;
-}
-
-h2,
-h3,
-p {
-	margin: 0 0 0 0 !important;
-}
-
-/* end pico */
 
 * {
-	font-variant: no-common-ligatures
-}
-
-td {
+	font-variant: no-common-ligatures;
 	font-variant-numeric: tabular-nums
 }
+
 
 th.right,
 td.right {
@@ -58,6 +41,10 @@ footer {
 tr:nth-child(5) th,
 tr:nth-child(5) td {
 	border-bottom: 3px solid #d5d5d5
+}
+
+th[scope=row] {
+	background-color: unset;
 }
 
 .bold {
@@ -87,7 +74,7 @@ tr:nth-child(5) td {
 <main id=app>
 
 <p>
-	<label for="yearSelect">Year:</label><select v-model="currentYear" title="choose year">
+	<label for="yearSelect">Year</label> <select v-model="currentYear" title="choose year">
 		<option v-for="year in years" :value="year">{{ year }}</option>
 	</select>
 </p>
@@ -171,62 +158,75 @@ createApp({
 
 		async function changeSeason() {
 			//const vue = this
-			const response = await fetch(`./data/${currentYear.value}.csv`)
-			const text = await response.text()
-			// h & a
-			parse(text, {
-				columns: true,
-				cast: cast,
-				on_record(record, lines) {
-					if (fitz.value == false && currentYear > 1996 && (record.homeTeam == "Fitzroy" || record.awayTeam == "Fitzroy"))
-						return null
-					if (south.value == false && (record.homeTeam == "South Melbourne" || record.awayTeam == "South Melbourne"))
-						return null
-					if (record.roundType == "round")
-						return record
-					else
-						return null // finals
-				}
-			}, (err, data) => {
-				//console.log(data)
-				season.value = {
-					year: currentYear,
-					rounds: []
-				}
-				let currentRoundNumber = 0, previousRoundNumber = 0
-				data.forEach(d => {
-					if (d.roundNumber != previousRoundNumber) {
-						previousRoundNumber = d.roundNumber
-						++currentRoundNumber
-						season.value.rounds.push({
-							roundNumber: currentRoundNumber,
-							matches: [d]
-						})
-					}
-					else {
-						season.value.rounds.at(-1).matches.push(d)
-					}
+			//const response = await fetch(`./data/${currentYear.value}.csv`)
+			const params = new URLSearchParams()
+			params.set("apikey", "2OtiWzDGnMCaD5ZbFSuRRsnIMYQ")
+			params.set("dbowner", "wdporter")
+			params.set("dbname", "imfl.db")
+			params.set("sql", btoa(`SELECT * FROM imfl WHERE year=${currentYear.value}`))
+			
+			const response = await fetch(`https://api.dbhub.io/v1/query`, {
+				method: "POST",
+				body: params
+			})
+			console.log(response)
+			const raw = JSON.parse(await response.text())
+			let data = []
+			//convert raw data to manageable objects
+			raw.forEach(r => {
+				data.push({
+					year: r[0].Value,
+					roundType: r[1].Value,
+					roundNumber: parseInt(r[2].Value),
+					homeTeam: r[3].Value,
+					homeGoals: parseInt(r[4].Value),
+					homeBehinds: parseInt(r[5].Value),
+					awayTeam: r[6].Value,
+					awayGoals: parseInt(r[7].Value),
+					awayBehinds: parseInt(r[8].Value),
 				})
 			})
-			// finals
-			parse(text, {
-				columns: true,
-				cast: cast,
-				on_record(record, lines) {
-					if (fitz.value == false && currentYear.value > 1996 && (record.homeTeam == "Fitzroy" || record.awayTeam == "Fitzroy"))
-						return null
-					if (south.value == false && (record.homeTeam == "South Melbourne" || record.awayTeam == "South Melbourne"))
-						return null
-					if (record.roundType == "finals")
-						return record
-					else
-						return null // finals
+
+			// filter out irrelevant teams
+			data = data.filter(d => {
+				if ((d.homeTeam == "South Melbourne" || d.awayTeam == "South Melbourne") && !south.value)
+					return false
+
+				if ((d.homeTeam == "Fitzroy" || d.awayTeam == "Fitzroy") && !fitz.value && currentYear.value > 1996 )
+					return false
+
+				return true
+			})
+			// set up a new season
+			season.value = {
+				year: currentYear,
+				rounds: []
+			}
+			// add matches to rounds of the season
+			let currentRoundNumber = 0, previousRoundNumber = 0
+			data.forEach(d => {
+				if (d.roundType != "round")
+					return;
+				if (d.roundNumber != previousRoundNumber) {
+					previousRoundNumber = d.roundNumber
+					++currentRoundNumber
+					season.value.rounds.push({
+						roundNumber: currentRoundNumber,
+						matches: [d]
+					})
 				}
-			}, (err, data) => {
-				//console.log(data)
-				season.value.finals = []
-				let roundNumber = 0
-				data.forEach(d => {
+				else {
+					season.value.rounds.at(-1).matches.push(d)
+				}
+			})
+
+			// add finals matches to season
+			season.value.finals = []
+			let roundNumber = 0
+			data.forEach(d => {
+				if (d.roundType != "finals")
+					return;
+				if (d.roundNumber != previousRoundNumber) {
 					if (d.roundNumber != roundNumber) {
 						++roundNumber
 						season.value.finals[roundNumber - 1] = {
@@ -237,9 +237,8 @@ createApp({
 					else {
 						season.value.finals[roundNumber - 1].matches.push(d)
 					}
-				})
+				}
 			})
-
 		}
 
 		watch(currentYear, changeSeason)
