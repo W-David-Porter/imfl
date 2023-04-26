@@ -87,14 +87,14 @@ th[scope=row] {
 	<summary>⚙️</summary>
 	<p>
 		<label for="southCheck">
-			<input type="checkbox" v-model="south" id="southCheck" />
-			Show Sydney as South Melbourne</label>
+			<input type="checkbox" v-model="south" id="southCheck" @change="scrolltotop()" />
+			Show South Melbourne</label>
 	</p>
 
 	<p>
 		<label for="fitzCheck">
-			<input type="checkbox" v-model="fitz" id="fitzCheck" />
-			Show Brisbane as Fitzroy (post 1996)</label>
+			<input type="checkbox" v-model="fitz" id="fitzCheck"  @change="scrolltotop()" />
+			Show Fitzroy post 1996</label>
 	</p>
 </details>
 
@@ -140,13 +140,6 @@ createApp({
 
 		const south = ref(false)
 		const fitz = ref(false)
-
-		function cast(value, context) {
-			if (context.column == "homeGoals" || context.column == "homeBehinds" || context.column == "awayGoals" || context.column == "awayBehinds")
-				return parseInt(value)
-			else
-				return value
-		}
 
 		async function getLatestYear() {
 			const response = await fetch("/data/latest.txt")
@@ -241,6 +234,10 @@ createApp({
 			})
 		}
 
+		async function scrolltotop() {
+			document.querySelector("h2").scrollIntoView({behavior: "smooth"})
+		}
+
 		watch(currentYear, changeSeason)
 		watch(fitz, changeSeason)
 		watch(south, changeSeason)
@@ -251,7 +248,7 @@ createApp({
 			currentYear,
 			south,
 			fitz,
-			cast
+			scrolltotop
 		}
 	},
 
