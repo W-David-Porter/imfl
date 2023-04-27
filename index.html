@@ -11,40 +11,45 @@
 
 	<title>Inner Melbourne Football League</title>
 
-	<link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
+	<!-- <link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
-	<link rel="stylesheet" href="https://newcss.net/theme/terminal.css">
+	<link rel="stylesheet" href="https://newcss.net/theme/terminal.css"> -->
+	<link rel="stylesheet" href="https://cdn.simplecss.org/simple.css">
+
 
 	<style>
+		label {
+			display: unset;
+		}
+
+
 		* {
 			font-variant: no-common-ligatures;
 			font-variant-numeric: tabular-nums
 		}
 
 
-		th.right,
+		 th.right,
 		td.right {
 			text-align: right;
 		}
 
-		footer {
-			background: var(--nc-bg-2);
-			border-top: 1px solid var(--nc-bg-3);
-			padding: 2rem 1.5rem;
-			margin: 2rem calc(0px - (50vw - 50%)) -2rem;
-			padding-left: calc(50vw - 50%);
-			padding-right: calc(50vw - 50%);
-			text-align: center;
-		}
+
 
 		tr:nth-child(5) th,
 		tr:nth-child(5) td {
 			border-bottom: 3px solid #d5d5d5
 		}
+		 @media (prefers-color-scheme: dark) {
+			tr:nth-child(5) th,
+			tr:nth-child(5) td {
+				border-bottom: 3px solid #333333
+			}
+		} 
 
 		th[scope=row] {
 			background-color: unset;
-		}
+		} 
 
 		.bold {
 			font-weight: bold;
@@ -54,13 +59,6 @@
 			font-style: italic;
 		}
 
-		@media (prefers-color-scheme: dark) {
-
-			tr:nth-child(5) th,
-			tr:nth-child(5) td {
-				border-bottom: 3px solid #333333
-			}
-		}
 	</style>
 </head>
 
@@ -74,14 +72,14 @@
 
 		<div style="display:flex;justify-content: space-between;">
 			<div>
-				<label for=yearSelect>Year</label> <select v-model="currentYear" title="choose year">
+				<label for=yearSelect>Year</label>&ensp;
+				<select v-model="currentYear" title="choose year" id=yearSelect>
 					<option v-for="year in years" :value="year">{{ year }}</option>
 				</select>
 			</div>
 			<div>
-				<label for="southCheck">
-					<input type="checkbox" v-model="south" id="southCheck" />
-					Show South Melbourne and Fitzroy</label>
+					<input type="checkbox" v-model="south" id="southCheck" />&ensp;
+					<label for="southCheck">Show South Melbourne and Fitzroy</label>
 			</div>
 		</div>
 
