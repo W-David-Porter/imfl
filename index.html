@@ -2,110 +2,100 @@
 <html lang=en>
 
 <head>
-<meta charset=utf-8>
-<meta name=viewport content="width=device-width">
-<link rel=icon
-href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🏉</text></svg>"
-type="image/svg+xml">
+	<meta charset=utf-8>
+	<meta name=viewport content="width=device-width">
+	<link rel=icon
+		href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🏉</text></svg>"
+		type="image/svg+xml">
 
 
-<title>Inner Melbourne Football League</title>
+	<title>Inner Melbourne Football League</title>
 
-<link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
-<link rel="stylesheet" href="https://newcss.net/theme/terminal.css">
+	<link rel="stylesheet" href="https://fonts.xz.style/serve/inter.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css">
+	<link rel="stylesheet" href="https://newcss.net/theme/terminal.css">
 
-<style>
+	<style>
+		* {
+			font-variant: no-common-ligatures;
+			font-variant-numeric: tabular-nums
+		}
 
-* {
-	font-variant: no-common-ligatures;
-	font-variant-numeric: tabular-nums
-}
 
+		th.right,
+		td.right {
+			text-align: right;
+		}
 
-th.right,
-td.right {
-	text-align: right;
-}
+		footer {
+			background: var(--nc-bg-2);
+			border-top: 1px solid var(--nc-bg-3);
+			padding: 2rem 1.5rem;
+			margin: 2rem calc(0px - (50vw - 50%)) -2rem;
+			padding-left: calc(50vw - 50%);
+			padding-right: calc(50vw - 50%);
+			text-align: center;
+		}
 
-footer {
-	background: var(--nc-bg-2);
-	border-top: 1px solid var(--nc-bg-3);
-	padding: 2rem 1.5rem;
-	margin: 2rem calc(0px - (50vw - 50%)) -2rem;
-	padding-left: calc(50vw - 50%);
-	padding-right: calc(50vw - 50%);
-	text-align: center;
-}
+		tr:nth-child(5) th,
+		tr:nth-child(5) td {
+			border-bottom: 3px solid #d5d5d5
+		}
 
-tr:nth-child(5) th,
-tr:nth-child(5) td {
-	border-bottom: 3px solid #d5d5d5
-}
+		th[scope=row] {
+			background-color: unset;
+		}
 
-th[scope=row] {
-	background-color: unset;
-}
+		.bold {
+			font-weight: bold;
+		}
 
-.bold {
-	font-weight: bold;
-}
+		.italic {
+			font-style: italic;
+		}
 
-.italic {
-	font-style: italic;
-}
+		@media (prefers-color-scheme: dark) {
 
-@media (prefers-color-scheme: dark) {
-
-	tr:nth-child(5) th,
-	tr:nth-child(5) td {
-		border-bottom: 3px solid #333333
-	}
-}
-</style>
+			tr:nth-child(5) th,
+			tr:nth-child(5) td {
+				border-bottom: 3px solid #333333
+			}
+		}
+	</style>
 </head>
 
 <body>
 
-<header>
-<h1>Inner Melbourne Football League 🏉</h1>
-</header>
+	<header>
+		<h1>Inner Melbourne Football League 🏉</h1>
+	</header>
 
-<main id=app>
+	<main id=app>
 
-<p>
-	<label for="yearSelect">Year</label> <select v-model="currentYear" title="choose year">
-		<option v-for="year in years" :value="year">{{ year }}</option>
-	</select>
-</p>
+		<div style="display:flex;justify-content: space-between;">
+			<div>
+				<label for=yearSelect>Year</label> <select v-model="currentYear" title="choose year">
+					<option v-for="year in years" :value="year">{{ year }}</option>
+				</select>
+			</div>
+			<div>
+				<label for="southCheck">
+					<input type="checkbox" v-model="south" id="southCheck" />
+					Show South Melbourne and Fitzroy</label>
+			</div>
+		</div>
 
-<Season :season="season"></Season>
-
-<p style="height:3em"> </p>
-
-<details>
-	<summary>⚙️</summary>
-	<p>
-		<label for="southCheck">
-			<input type="checkbox" v-model="south" id="southCheck" @change="scrolltotop()" />
-			Show South Melbourne</label>
-	</p>
-
-	<p>
-		<label for="fitzCheck">
-			<input type="checkbox" v-model="fitz" id="fitzCheck"  @change="scrolltotop()" />
-			Show Fitzroy post 1996</label>
-	</p>
-</details>
-
-</main>
-
-<footer>
-made with ❤️ by W. David Porter
-</footer>
+		<Season :season="season"></Season>
 
 
-<!-- <script type=importmap>
+	</main>
+
+	<footer>
+		made with ❤️ by W. David Porter
+	</footer>
+
+
+	<!-- <script type=importmap>
 {
 "imports": {
 "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js",
@@ -115,146 +105,138 @@ made with ❤️ by W. David Porter
 }
 </script> -->
 
-<script type="module">
+	<script type="module">
 
-import { createApp, ref, watch } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js" //"vue" 
-import Season from "./components/season.js" // "season"
-import { parse } from "https://cdn.jsdelivr.net/npm/csv-parse@5.3.0/dist/esm/index.js" //"csv"
+		import { createApp, ref, watch } from "https://unpkg.com/vue@3/dist/vue.esm-browser.js" //"vue" 
+		import Season from "./components/season.js" // "season"
+		import { parse } from "https://cdn.jsdelivr.net/npm/csv-parse@5.3.0/dist/esm/index.js" //"csv"
 
-createApp({
-	components: {
-		Season
-	},
-	
-	setup() {
+		createApp({
+			components: {
+				Season
+			},
 
-		const season = ref({
-			year: 2022,
-			rounds: [],
-			finals: []
-		})
+			setup() {
 
-		const currentYear = ref("")
-
-		let years = ref([])
-
-		const south = ref(false)
-		const fitz = ref(false)
-
-		async function getLatestYear() {
-			const response = await fetch("/data/latest.txt")
-			currentYear.value = await response.text()
-			years.value = Array.from({ length: parseInt(currentYear.value) - 1982 + 1 }, (x, i) => i + 1982).reverse()
-		}
-
-		getLatestYear()
-
-		async function changeSeason() {
-			//const vue = this
-			//const response = await fetch(`./data/${currentYear.value}.csv`)
-			const params = new URLSearchParams()
-			params.set("apikey", "2OtiWzDGnMCaD5ZbFSuRRsnIMYQ")
-			params.set("dbowner", "wdporter")
-			params.set("dbname", "imfl.db")
-			params.set("sql", btoa(`SELECT * FROM imfl WHERE year=${currentYear.value}`))
-			
-			const response = await fetch(`https://api.dbhub.io/v1/query`, {
-				method: "POST",
-				body: params
-			})
-			console.log(response)
-			const raw = JSON.parse(await response.text())
-			let data = []
-			//convert raw data to manageable objects
-			raw.forEach(r => {
-				data.push({
-					year: r[0].Value,
-					roundType: r[1].Value,
-					roundNumber: parseInt(r[2].Value),
-					homeTeam: r[3].Value,
-					homeGoals: parseInt(r[4].Value),
-					homeBehinds: parseInt(r[5].Value),
-					awayTeam: r[6].Value,
-					awayGoals: parseInt(r[7].Value),
-					awayBehinds: parseInt(r[8].Value),
+				const season = ref({
+					year: 2022,
+					rounds: [],
+					finals: []
 				})
-			})
 
-			// filter out irrelevant teams
-			data = data.filter(d => {
-				if ((d.homeTeam == "South Melbourne" || d.awayTeam == "South Melbourne") && !south.value)
-					return false
+				const currentYear = ref("")
 
-				if ((d.homeTeam == "Fitzroy" || d.awayTeam == "Fitzroy") && !fitz.value && currentYear.value > 1996 )
-					return false
+				let years = ref([])
 
-				return true
-			})
-			// set up a new season
-			season.value = {
-				year: currentYear,
-				rounds: []
-			}
-			// add matches to rounds of the season
-			let currentRoundNumber = 0, previousRoundNumber = 0
-			data.forEach(d => {
-				if (d.roundType != "round")
-					return;
-				if (d.roundNumber != previousRoundNumber) {
-					previousRoundNumber = d.roundNumber
-					++currentRoundNumber
-					season.value.rounds.push({
-						roundNumber: currentRoundNumber,
-						matches: [d]
+				const south = ref(false)
+
+				async function getLatestYear() {
+					const response = await fetch("/data/latest.txt")
+					currentYear.value = await response.text()
+					years.value = Array.from({ length: parseInt(currentYear.value) - 1982 + 1 }, (x, i) => i + 1982).reverse()
+				}
+
+				getLatestYear()
+
+				async function changeSeason() {
+					//const vue = this
+					//const response = await fetch(`./data/${currentYear.value}.csv`)
+					const params = new URLSearchParams()
+					params.set("apikey", "2OtiWzDGnMCaD5ZbFSuRRsnIMYQ")
+					params.set("dbowner", "wdporter")
+					params.set("dbname", "imfl.db")
+					params.set("sql", btoa(`SELECT * FROM imfl WHERE year=${currentYear.value}`))
+
+					const response = await fetch(`https://api.dbhub.io/v1/query`, {
+						method: "POST",
+						body: params
+					})
+					console.log(response)
+					const raw = JSON.parse(await response.text())
+					let data = []
+					//convert raw data to manageable objects
+					raw.forEach(r => {
+						data.push({
+							year: r[0].Value,
+							roundType: r[1].Value,
+							roundNumber: parseInt(r[2].Value),
+							homeTeam: r[3].Value,
+							homeGoals: parseInt(r[4].Value),
+							homeBehinds: parseInt(r[5].Value),
+							awayTeam: r[6].Value,
+							awayGoals: parseInt(r[7].Value),
+							awayBehinds: parseInt(r[8].Value),
+						})
+					})
+
+					// filter out irrelevant teams
+					data = data.filter(d => {
+						if (!south.value) {
+							if ((d.homeTeam == "South Melbourne" || d.awayTeam == "South Melbourne"))
+									return false
+							if ((d.homeTeam == "Fitzroy" || d.awayTeam == "Fitzroy") && currentYear.value > 1996)
+								return false
+						}
+						return true
+					})
+					// set up a new season
+					season.value = {
+						year: currentYear,
+						rounds: []
+					}
+					// add matches to rounds of the season
+					let currentRoundNumber = 0, previousRoundNumber = 0
+					data.forEach(d => {
+						if (d.roundType != "round")
+							return;
+						if (d.roundNumber != previousRoundNumber) {
+							previousRoundNumber = d.roundNumber
+							++currentRoundNumber
+							season.value.rounds.push({
+								roundNumber: currentRoundNumber,
+								matches: [d]
+							})
+						}
+						else {
+							season.value.rounds.at(-1).matches.push(d)
+						}
+					})
+
+					// add finals matches to season
+					season.value.finals = []
+					let roundNumber = 0
+					data.forEach(d => {
+						if (d.roundType != "finals")
+							return;
+						if (d.roundNumber != previousRoundNumber) {
+							if (d.roundNumber != roundNumber) {
+								++roundNumber
+								season.value.finals[roundNumber - 1] = {
+									roundNumber: d.roundNumber,
+									matches: [d]
+								}
+							}
+							else {
+								season.value.finals[roundNumber - 1].matches.push(d)
+							}
+						}
 					})
 				}
-				else {
-					season.value.rounds.at(-1).matches.push(d)
+
+				watch(currentYear, changeSeason)
+				watch(south, changeSeason)
+
+				return {
+					season,
+					years,
+					currentYear,
+					south,
 				}
-			})
+			},
 
-			// add finals matches to season
-			season.value.finals = []
-			let roundNumber = 0
-			data.forEach(d => {
-				if (d.roundType != "finals")
-					return;
-				if (d.roundNumber != previousRoundNumber) {
-					if (d.roundNumber != roundNumber) {
-						++roundNumber
-						season.value.finals[roundNumber - 1] = {
-							roundNumber: d.roundNumber,
-							matches: [d]
-						}
-					}
-					else {
-						season.value.finals[roundNumber - 1].matches.push(d)
-					}
-				}
-			})
-		}
 
-		async function scrolltotop() {
-			document.querySelector("h2").scrollIntoView({behavior: "smooth"})
-		}
-
-		watch(currentYear, changeSeason)
-		watch(fitz, changeSeason)
-		watch(south, changeSeason)
-
-		return {
-			season,
-			years,
-			currentYear,
-			south,
-			fitz,
-			scrolltotop
-		}
-	},
-
-	
-}).mount('#app')
-</script>
+		}).mount('#app')
+	</script>
 
 
 </body>
