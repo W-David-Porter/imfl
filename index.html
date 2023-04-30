@@ -22,28 +22,24 @@
 			display: unset;
 		}
 
-
 		* {
 			font-variant: no-common-ligatures;
 			font-variant-numeric: tabular-nums
 		}
 
-
-		 th.right,
+		th.right, 
 		td.right {
 			text-align: right;
 		}
 
-
-
 		tr:nth-child(5) th,
 		tr:nth-child(5) td {
-			border-bottom: 3px solid #d5d5d5
+			border-bottom: 3px solid ;
 		}
 		 @media (prefers-color-scheme: dark) {
 			tr:nth-child(5) th,
 			tr:nth-child(5) td {
-				border-bottom: 3px solid #333333
+				border-bottom: 3px ;
 			}
 		} 
 
@@ -70,21 +66,20 @@
 
 	<main id=app>
 
-		<div style="display:flex;justify-content: space-between;">
-			<div>
-				<label for=yearSelect>Year</label>&ensp;
-				<select v-model="currentYear" title="choose year" id=yearSelect>
-					<option v-for="year in years" :value="year">{{ year }}</option>
-				</select>
-			</div>
-			<div>
-					<input type="checkbox" v-model="south" id="southCheck" />&ensp;
-					<label for="southCheck">Show South Melbourne and Fitzroy</label>
-			</div>
-		</div>
+	<p>
+		<label for=yearSelect>Year</label>&ensp;
+		<select v-model="currentYear" title="choose year" id=yearSelect>
+			<option v-for="year in years" :value="year">{{ year }}</option>
+		</select>
+	</p>
 
-		<Season :season="season"></Season>
 
+	<Season :season="season"></Season>
+
+	<p>
+		<input type=checkbox id=southCheck v-model="south"  />&ensp;
+		<label for=southCheck>Show South Melbourne and Fitzroy</label>
+	</p>
 
 	</main>
 
