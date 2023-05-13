@@ -134,16 +134,13 @@
 				async function changeSeason() {
 					//const vue = this
 					//const response = await fetch(`./data/${currentYear.value}.csv`)
-					const params = new URLSearchParams()
-					params.set("apikey", "2OtiWzDGnMCaD5ZbFSuRRsnIMYQ")
-					params.set("dbowner", "wdporter")
-					params.set("dbname", "imfl.db")
-					params.set("sql", btoa(`SELECT * FROM imfl WHERE year=${currentYear.value}`))
+					// const params = new URLSearchParams()
+					// params.set("apikey", "2OtiWzDGnMCaD5ZbFSuRRsnIMYQ")
+					// params.set("dbowner", "wdporter")
+					// params.set("dbname", "imfl.db")
+					// params.set("sql", btoa(`SELECT * FROM imfl WHERE year=${currentYear.value}`))
 
-					const response = await fetch(`https://api.dbhub.io/v1/query`, {
-						method: "POST",
-						body: params
-					})
+					const response = await fetch(`http://api.wdporter.id.au/v2?year=${currentYear.value}`)
 					console.log(response)
 					const raw = JSON.parse(await response.text())
 					let data = []
