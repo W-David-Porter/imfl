@@ -65,10 +65,10 @@ export default {
 					return -1
 				else if ((a.won * 4) + (a.drawn * 2) < (b.won * 4) + (b.drawn * 2))
 					return 1
-				else if (a.played < b.played)
-					return -1
-				else if (a.played > b.played)
-					return 1
+				// else if (a.played < b.played)
+				// 	return -1
+				// else if (a.played > b.played)
+				// 	return 1
 				else if (a.for / a.against > b.for / b.against)
 					return -1
 				else if (a.for / a.against < b.for / b.against)
@@ -98,7 +98,7 @@ export default {
 		<thead>
 			<tr>
 				<th scope=col>Club</th>
-				<th class=right scope=col>Played</th>
+				<!--<th class=right scope=col>Played</th>-->
 				<th class=right scope=col>Won</th>
 				<th class=right scope=col>Lost</th>
 				<th class=right scope=col>Drawn</th>
@@ -111,7 +111,7 @@ export default {
 		<tbody>
 			<tr v-for="t in makeLadder()">
 				<th scope=row>{{ t.name }}</th>
-				<td class=right>{{ t.played }}</td>
+				<!--<td class=right>{{ t.played }}</td>-->
 				<td class=right>{{ t.won }}</td>
 				<td class=right>{{ t.lost }}</td>
 				<td class=right>{{ t.drawn }}</td>
